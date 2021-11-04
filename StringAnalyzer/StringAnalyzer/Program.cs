@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace StringAnalyzer
+namespace CypherBreaker
 {
     class Program
     {
@@ -145,11 +145,11 @@ namespace StringAnalyzer
             //display data
             if (advancedOutputFlag)
             {
-                Record.DrawGraphics(counted);
+                Record.DrawGraphicsWithExample(counted);
             }
             else
             {
-                Record.DrawSimple(counted);
+                Record.DrawGraphics(counted);
             }
 
             Console.ReadKey();

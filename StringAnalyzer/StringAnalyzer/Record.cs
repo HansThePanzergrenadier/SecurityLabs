@@ -4,12 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StringAnalyzer
+namespace CypherBreaker
 {
     class Record
     {
         public char Character;
         public double Count;
+        public static List<Record> englLiteralsFreq = new List<Record>()
+        {
+            new Record('a', 8.167),
+            new Record('b', 1.492),
+            new Record('c', 2.782),
+            new Record('d', 4.253),
+            new Record('e', 12.702),
+            new Record('f', 2.228),
+            new Record('g', 2.015),
+            new Record('h', 6.094),
+            new Record('i', 6.966),
+            new Record('j', 0.153),
+            new Record('k', 0.772),
+            new Record('l', 4.025),
+            new Record('m', 2.406),
+            new Record('n', 6.749),
+            new Record('o', 7.507),
+            new Record('p', 1.929),
+            new Record('q', 0.095),
+            new Record('r', 5.987),
+            new Record('s', 6.327),
+            new Record('t', 9.056),
+            new Record('u', 2.758),
+            new Record('v', 0.978),
+            new Record('w', 2.360),
+            new Record('x', 0.150),
+            new Record('y', 1.974),
+            new Record('z', 0.074)
+        };
 
         public enum SortingMode
         {
@@ -209,9 +238,9 @@ namespace StringAnalyzer
             foreach (Record el in recs)
             {
                 Console.Write(el.Character);
-                Console.CursorLeft = 3;
+                Console.CursorLeft += 2;
                 Console.Write("| {0:F2}", el.Count);
-                Console.CursorLeft = 10;
+                Console.CursorLeft += 2;
                 Console.Write("| ");
                 for (int i = 0; i < el.Count; i++)
                 {
@@ -220,6 +249,34 @@ namespace StringAnalyzer
                 
                 Console.WriteLine();
             }
+        }
+
+        public static void DrawGraphics(List<Record> recs, int leftOffset)
+        {
+            foreach (Record el in recs)
+            {
+                Console.CursorLeft = leftOffset;
+                Console.Write(el.Character);
+                Console.CursorLeft = leftOffset + 3;
+                Console.Write("| {0:F2}", el.Count);
+                Console.CursorLeft = leftOffset + 10;
+                Console.Write("| ");
+                for (int i = 0; i < el.Count; i++)
+                {
+                    Console.Write("█");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        public static void DrawGraphicsWithExample(List<Record> recs)
+        {
+            int startY = Console.CursorTop;
+            MergeSameLetters(recs);
+            DrawGraphics(SortRecordsByChar(recs));
+            Console.CursorTop = startY;
+            DrawGraphics(englLiteralsFreq, 30);
         }
     }
 }

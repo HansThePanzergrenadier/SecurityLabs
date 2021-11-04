@@ -1,0 +1,7 @@
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\bin\Debug\CypherBreaker.exe.config
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\bin\Debug\CypherBreaker.exe
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\bin\Debug\CypherBreaker.pdb
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\obj\Debug\CypherBreaker.csprojAssemblyReference.cache
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\obj\Debug\CypherBreaker.csproj.CoreCompileInputs.cache
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\obj\Debug\CypherBreaker.exe
+D:\Folya\docs\homeworks\7 sem\security\secLabs\CypherBreaker\CypherBreaker\obj\Debug\CypherBreaker.pdb
