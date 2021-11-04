@@ -65,7 +65,7 @@ namespace CypherBreaker
             switch (cypherMode)
             {
                 case "c":
-                    Decypher.CaesarAttack(input);
+                    Decypher.ShowCaesarXor(input);
                     break;
                 default:
                     break;

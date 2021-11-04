@@ -6,10 +6,48 @@ using System.Threading.Tasks;
 
 namespace CypherBreaker
 {
-    class Record
+    public class Record
     {
         public char Character;
         public double Count;
+        public static String[] bigrams = new string[]
+        {
+            "th",
+            "he",
+            "in",
+            "en",
+            "nt",
+            "re",
+            "er",
+            "an",
+            "ti",
+            "es",
+            "on",
+            "at",
+            "se",
+            "nd",
+            "or",
+            "ar",
+            "al",
+            "te",
+            "co",
+            "de",
+            "to",
+            "ra",
+            "et",
+            "ed",
+            "it",
+            "sa",
+            "em",
+            "ro",
+            "nn",
+            "gg",
+            "mm",
+            "ss",
+            "ll",
+            "rr",
+            "oo",
+        };
         public static List<Record> englLiteralsFreq = new List<Record>()
         {
             new Record('a', 8.167),
@@ -51,6 +89,36 @@ namespace CypherBreaker
         {
             this.Character = Character;
             this.Count = Count;
+        }
+
+        public static bool Contains(List<Record> recs, char symbol)
+        {
+            foreach(var el in recs)
+            {
+                if (el.Character.Equals(symbol))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static void MergingAdd(List<Record> recs, Record rec)
+        {
+            if(Contains(recs, rec.Character))
+            {
+                for(int i = 0; i < recs.Count; i++)
+                {
+                    if (recs[i].Character.Equals(rec.Character))
+                    {
+                        recs[i].Count += rec.Count;
+                    }
+                }
+            }
+            else
+            {
+                recs.Add(rec);
+            }
         }
 
         public static void DrawSimple(SortedDictionary<char, int> counted)
@@ -182,35 +250,26 @@ namespace CypherBreaker
             }
         }
 
-        public static void MergeSameLetters(List<Record> recs)
+        public static List<Record> MergeSameLetters(List<Record> recs)
         {
-            if (recs.Count > 0)
+            List<Record> res1 = new List<Record>();
+            List<Record> res2 = new List<Record>();
+            res1.AddRange(recs);
+            if (res1.Count > 0)
             {
-                for (int i = 0; i < recs.Count; i++)
-                {
-                    Record a = recs[i];
-                    char aC = a.Character;
-                    if (Char.IsLetter(aC) && Char.IsUpper(aC))
-                    {
-                        for (int j = 0; j < recs.Count; j++)
-                        {
-                            Record b = recs[j];
-                            Char bC = b.Character;
-                            if (Char.IsLetter(bC) && Char.IsLower(bC) && Char.ToUpper(bC).Equals(aC))
-                            {
-                                a.Count += b.Count;
-                                recs.Remove(b);
-                            }
-                        }
-                    }
-                }
-                foreach(Record el in recs)
+                foreach (Record el in res1)
                 {
                     if (Char.IsUpper(el.Character))
                     {
                         el.Character = Char.ToLower(el.Character);
                     }
                 }
+                foreach(Record el in res1)
+                {
+                    MergingAdd(res2, el);
+                }
+                
+                return res2;
             }
             else
             {
@@ -226,10 +285,34 @@ namespace CypherBreaker
             {
                 total += el.Count;
             }
-            foreach(Record el in recs)
+            foreach (Record el in recs)
             {
                 result.Add(new Record(el.Character, (el.Count / total) * 100));
             }
+            return result;
+        }
+
+        public static List<Record> TakeLetters(List<Record> recs)
+        {
+            List<Record> result = new List<Record>();
+            foreach (Record el in recs)
+            {
+                if (char.IsLetter(el.Character))
+                {
+                    result.Add(el);
+                }
+            }
+            return result;
+        }
+
+        public static List<Record> Normalize(List<Record> recs)
+        {
+            List<Record> result = new List<Record>();
+            result.AddRange(recs);
+            result = ConvertToPercentage(
+                TakeLetters(
+                    SortRecordsByChar(
+                        MergeSameLetters(result))));
             return result;
         }
 
@@ -238,15 +321,15 @@ namespace CypherBreaker
             foreach (Record el in recs)
             {
                 Console.Write(el.Character);
-                Console.CursorLeft += 2;
+                Console.CursorLeft = 3;
                 Console.Write("| {0:F2}", el.Count);
-                Console.CursorLeft += 2;
+                Console.CursorLeft = 10;
                 Console.Write("| ");
                 for (int i = 0; i < el.Count; i++)
                 {
                     Console.Write("█");
                 }
-                
+
                 Console.WriteLine();
             }
         }
@@ -273,10 +356,69 @@ namespace CypherBreaker
         public static void DrawGraphicsWithExample(List<Record> recs)
         {
             int startY = Console.CursorTop;
-            MergeSameLetters(recs);
-            DrawGraphics(SortRecordsByChar(recs));
+            DrawGraphics(Normalize(recs));
             Console.CursorTop = startY;
             DrawGraphics(englLiteralsFreq, 30);
+        }
+
+        public static bool CheckLetterFreq(List<Record> recs, double range)
+        {
+            bool result = false;
+            List<Record> exam = Normalize(recs);
+            for (int i = 0; i < englLiteralsFreq.Count; i++)
+            {
+                Record en = englLiteralsFreq[i];
+                if (exam[i].Count > en.Count - range && exam[i].Count < en.Count + range)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        public static List<Record> GetFreqDifference(List<Record> recs)
+        {
+            List<Record> diffs = new List<Record>();
+            List<Record> exam = Normalize(recs);
+            for (int i = 0; i < englLiteralsFreq.Count; i++)
+            {
+                Record eng = englLiteralsFreq[i];
+                Record rec = recs[i];
+                diffs.Add(new Record(eng.Character, eng.Count - rec.Count));
+            }
+            return diffs;
+        }
+
+        public static double GetMaxFreqDifference(List<Record> recs)
+        {
+            List<Record> diffs = GetFreqDifference(recs);
+            double result = 0;
+            foreach (Record el in recs)
+            {
+                if (Math.Abs(el.Count) > Math.Abs(result))
+                {
+                    result = el.Count;
+                }
+            }
+            return result;
+        }
+
+        public static int GetBigramsPresence(String text)
+        {
+            String[] splitted = text.Split(bigrams, StringSplitOptions.None);
+            return splitted.Length - 1;
+        }
+
+        public static bool CheckEnglish(String text, double threshold)
+        {
+            int size = text.Length / 2;
+            int count = GetBigramsPresence(text);
+            return (count / size) * 100 > threshold;
         }
     }
 }
