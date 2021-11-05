@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CypherBreaker
+namespace CipherBreaker
 {
-    class Decypher
+    class Decipher
     {
         public static char[] CaesarAdd(char[] input, int offset)
         {

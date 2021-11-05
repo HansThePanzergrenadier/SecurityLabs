@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace CypherBreaker
+namespace CipherBreaker
 {
     class Program
     {
         static void Main(string[] args)
         {
-            String filename;
+            String filename = "D://Folya//docs//homeworks//7 sem//security//test.txt";
             char[] input;
             bool pasteFlag = false, mergeFlag = true, percFlag = true, advancedOutputFlag = true, testFlag = false;
             Record.SortingMode sortingMode = Record.SortingMode.ByChar;
@@ -19,23 +19,16 @@ namespace CypherBreaker
             //if .exe is runned without batfile or console, we should determine filename manually
             if (args.Length == 0)
             {
-                do
+                Console.WriteLine("Take text from default filepath? y/n");
+                if (Console.ReadLine() != "y")
                 {
-                    Console.WriteLine("Enter txt filename to analyze or: ");
-                    Console.WriteLine("   - enter 'q' to close program ");
-                    Console.WriteLine("   - enter 't' to paste complete text to analyze ");
-                    filename = Console.ReadLine();
-                    if (filename == "q")
+                    do
                     {
-                        return;
+                        Console.WriteLine("Enter txt filename to analyze");
+                        filename = Console.ReadLine();
                     }
-                    else if (filename == "t")
-                    {
-                        pasteFlag = true;
-                        break;
-                    }
+                    while (!File.Exists(filename));
                 }
-                while (!File.Exists(filename));
 
                 Console.WriteLine("Test mode? y/n");
                 if (Console.ReadLine() == "y")
@@ -168,8 +161,7 @@ namespace CypherBreaker
             else
             {
                 //there is some to test
-                Console.WriteLine(Record.CheckEnglish(new string(input)));
-
+                Console.WriteLine(Record.GetMaxFreqDifference(Record.CountRecords(input)));
             }
 
             Console.ReadKey();

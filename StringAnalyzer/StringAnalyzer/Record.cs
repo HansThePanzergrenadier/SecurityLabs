@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CypherBreaker
+namespace CipherBreaker
 {
     public class Record
     {
@@ -93,7 +93,7 @@ namespace CypherBreaker
 
         public static bool Contains(List<Record> recs, char symbol)
         {
-            foreach(var el in recs)
+            foreach (var el in recs)
             {
                 if (el.Character.Equals(symbol))
                 {
@@ -105,9 +105,9 @@ namespace CypherBreaker
 
         public static void MergingAdd(List<Record> recs, Record rec)
         {
-            if(Contains(recs, rec.Character))
+            if (Contains(recs, rec.Character))
             {
-                for(int i = 0; i < recs.Count; i++)
+                for (int i = 0; i < recs.Count; i++)
                 {
                     if (recs[i].Character.Equals(rec.Character))
                     {
@@ -264,11 +264,11 @@ namespace CypherBreaker
                         el.Character = Char.ToLower(el.Character);
                     }
                 }
-                foreach(Record el in res1)
+                foreach (Record el in res1)
                 {
                     MergingAdd(res2, el);
                 }
-                
+
                 return res2;
             }
             else
@@ -305,6 +305,20 @@ namespace CypherBreaker
             return result;
         }
 
+        public static List<Record> AddMissingLetters(List<Record> recs)
+        {
+            List<Record> result = new List<Record>();
+            result.AddRange(recs);
+            foreach (Record el in englLiteralsFreq)
+            {
+                if (!Contains(result, el.Character))
+                {
+                    result.Add(new Record(el.Character, 0));
+                }
+            }
+            return result;
+        }
+
         public static List<Record> Normalize(List<Record> recs)
         {
             List<Record> result = new List<Record>();
@@ -312,7 +326,8 @@ namespace CypherBreaker
             result = ConvertToPercentage(
                 TakeLetters(
                     SortRecordsByChar(
-                        MergeSameLetters(result))));
+                        AddMissingLetters(
+                            MergeSameLetters(result)))));
             return result;
         }
 
@@ -388,7 +403,7 @@ namespace CypherBreaker
             for (int i = 0; i < englLiteralsFreq.Count; i++)
             {
                 Record eng = englLiteralsFreq[i];
-                Record rec = recs[i];
+                Record rec = exam[i];
                 diffs.Add(new Record(eng.Character, eng.Count - rec.Count));
             }
             return diffs;
@@ -398,7 +413,7 @@ namespace CypherBreaker
         {
             List<Record> diffs = GetFreqDifference(recs);
             double result = 0;
-            foreach (Record el in recs)
+            foreach (Record el in diffs)
             {
                 if (Math.Abs(el.Count) > Math.Abs(result))
                 {
