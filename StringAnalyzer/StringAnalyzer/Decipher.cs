@@ -57,12 +57,12 @@ namespace CypherBreaker
             for(int i = 0; i < 256; i++)
             {
                 char[] result = CaesarXor(text, i);
-                if(Record.GetBigramsPresence(new string(result)) > 10)
+                if(Record.CheckEnglish(new string(result)))
                 {
                     return result;
                 }
             }
-            return new char[] { '0' };
+            throw new Exception("Failed to attack");
         }
     }
 }

@@ -167,12 +167,12 @@ namespace CypherBreaker
             }
             else
             {
-                Record.DrawGraphicsWithExample(Record.Normalize(Record.CountRecords(input)));
+                //there is some to test
+                Console.WriteLine(Record.CheckEnglish(new string(input)));
+
             }
 
             Console.ReadKey();
         }
-
-        
     }
 }

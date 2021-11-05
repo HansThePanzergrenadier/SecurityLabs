@@ -420,5 +420,13 @@ namespace CypherBreaker
             int count = GetBigramsPresence(text);
             return (count / size) * 100 > threshold;
         }
+
+        public static bool CheckEnglish(String text)
+        {
+            double size = text.Length / 2;
+            double count = GetBigramsPresence(text);
+            double containment = (count / size) * 100;
+            return containment > 0.5;
+        }
     }
 }
