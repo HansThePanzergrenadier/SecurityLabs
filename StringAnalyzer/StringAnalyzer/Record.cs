@@ -423,25 +423,24 @@ namespace CipherBreaker
             return result;
         }
 
-        public static int GetBigramsPresence(String text)
-        {
-            String[] splitted = text.Split(bigrams, StringSplitOptions.None);
-            return splitted.Length - 1;
-        }
-
-        public static bool CheckEnglish(String text, double threshold)
-        {
-            int size = text.Length / 2;
-            int count = GetBigramsPresence(text);
-            return (count / size) * 100 > threshold;
-        }
-
-        public static bool CheckEnglish(String text)
+        public static double GetBigramsPresence(string text)
         {
             double size = text.Length / 2;
-            double count = GetBigramsPresence(text);
-            double containment = (count / size) * 100;
-            return containment > 0.5;
+            string[] splitted = text.Split(bigrams, StringSplitOptions.None);
+            double count = splitted.Length - 1;
+            return (count / size) * 100;
+        }
+
+        public static bool CheckEnglish(string text, double threshold)
+        {
+            double presence = GetBigramsPresence(text);
+            return presence > threshold;
+        }
+
+        public static bool CheckEnglish(string text)
+        {
+            double presence = GetBigramsPresence(text);
+            return presence > 0.5;
         }
     }
 }

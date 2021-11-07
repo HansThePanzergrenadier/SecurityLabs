@@ -51,15 +51,20 @@ namespace CipherBreaker
 
         public static char[] AttackCaesarXor(char[] text)
         {
+            double[] press = new double[256];
+            double maxPresence = 0;
+            int maxPresIndex = 0;
             for(int i = 0; i < 256; i++)
             {
                 char[] result = CaesarXor(text, i);
-                if(Record.CheckEnglish(new string(result)))
+                press[i] = Record.GetBigramsPresence(new string(result));
+                if(press[i] > maxPresence)
                 {
-                    return result;
+                    maxPresence = press[i];
+                    maxPresIndex = i;
                 }
             }
-            throw new Exception("Failed to attack");
+            return CaesarXor(text, maxPresIndex);
         }
     }
 }

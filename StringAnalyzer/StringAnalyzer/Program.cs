@@ -161,7 +161,7 @@ namespace CipherBreaker
             else
             {
                 //there is some to test
-                Console.WriteLine(Record.GetMaxFreqDifference(Record.CountRecords(input)));
+                Console.WriteLine(new string(Decipher.AttackCaesarXor(input)));
             }
 
             Console.ReadKey();
