@@ -11,9 +11,9 @@ namespace CipherBreaker
             String filename = "D://Folya//docs//homeworks//7 sem//security//test.txt";
             char[] input;
             bool pasteFlag = false, mergeFlag = true, percFlag = true, advancedOutputFlag = true, testFlag = false;
-            Record.SortingMode sortingMode = Record.SortingMode.ByChar;
+            CharRecord.SortingMode sortingMode = CharRecord.SortingMode.ByChar;
             StreamReader reader;
-            List<Record> counted;
+            List<CharRecord> counted;
 
 
             //if .exe is runned without batfile or console, we should determine filename manually
@@ -70,13 +70,13 @@ namespace CipherBreaker
                         switch (Console.ReadLine())
                         {
                             case "c":
-                                sortingMode = Record.SortingMode.ByChar;
+                                sortingMode = CharRecord.SortingMode.ByChar;
                                 break;
                             case "n":
-                                sortingMode = Record.SortingMode.ByNumber;
+                                sortingMode = CharRecord.SortingMode.ByNumber;
                                 break;
                             case "x":
-                                sortingMode = Record.SortingMode.None;
+                                sortingMode = CharRecord.SortingMode.None;
                                 break;
                             default:
                                 break;
@@ -121,47 +121,47 @@ namespace CipherBreaker
             {
 
                 //simply count each founded symbol
-                counted = Record.CountRecords(input);
+                counted = CharRecord.CountRecords(input);
                 if (mergeFlag)
                 {
-                    counted = Record.MergeSameLetters(counted);
+                    counted = CharRecord.MergeSameLetters(counted);
                 }
 
                 switch (sortingMode)
                 {
-                    case Record.SortingMode.ByChar:
-                        counted = Record.SortRecordsByChar(counted);
+                    case CharRecord.SortingMode.ByChar:
+                        counted = CharRecord.SortRecordsByChar(counted);
                         break;
-                    case Record.SortingMode.ByNumber:
-                        counted = Record.SortRecordsByNumber(counted);
+                    case CharRecord.SortingMode.ByNumber:
+                        counted = CharRecord.SortRecordsByNumber(counted);
                         break;
-                    case Record.SortingMode.None:
+                    case CharRecord.SortingMode.None:
                         //nothing to do
                         break;
                     default:
-                        counted = Record.SortRecordsByChar(counted);
+                        counted = CharRecord.SortRecordsByChar(counted);
                         break;
                 }
 
                 if (percFlag)
                 {
-                    counted = Record.ConvertToPercentage(counted);
+                    counted = CharRecord.ConvertToPercentage(counted);
                 }
 
                 //display data
                 if (advancedOutputFlag)
                 {
-                    Record.DrawGraphicsWithExample(counted);
+                    CharRecord.DrawGraphicsWithExample(counted);
                 }
                 else
                 {
-                    Record.DrawGraphics(counted);
+                    CharRecord.DrawGraphics(counted);
                 }
             }
             else
             {
                 //there is some to test
-                Console.WriteLine(new string(Decipher.AttackCaesarXor(input)));
+                Console.WriteLine(Decipher.GetKeyLength(input, 100, 5));
             }
 
             Console.ReadKey();

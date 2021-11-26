@@ -44,9 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Decipher.cs" />
+    <Compile Include="NumberRecord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Record.cs" />
+    <Compile Include="CharRecord.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
