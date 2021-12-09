@@ -161,7 +161,8 @@ namespace CipherBreaker
             else
             {
                 //there is some to test
-                Console.WriteLine(Decipher.GetKeyLength(input, 100, 5));
+                Console.WriteLine("Key: " + Decipher.GetXorKey(Decipher.DecodeFromBase64(input)));
+                Console.WriteLine(Decipher.BreakXorVigenere(Decipher.DecodeFromBase64(input)));
             }
 
             Console.ReadKey();

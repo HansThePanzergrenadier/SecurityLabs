@@ -402,10 +402,16 @@ namespace CipherBreaker
             DrawGraphics(englLiteralsFreq, 30);
         }
 
+        /*
+         * check if english using frequency analysis
+         * recs - usually it`s what Normalize() returns
+         * range - threshold in percents. 5% is good enough
+         */
         public static bool CheckLetterFreq(List<CharRecord> recs, double range)
         {
             bool result = false;
-            List<CharRecord> exam = Normalize(recs);
+            //List<CharRecord> exam = Normalize(recs);
+            List<CharRecord> exam = recs;
             for (int i = 0; i < englLiteralsFreq.Count; i++)
             {
                 CharRecord en = englLiteralsFreq[i];
@@ -422,10 +428,15 @@ namespace CipherBreaker
             return result;
         }
 
+        /*
+         * returns a list of differences in percents between original text letters frequencies and english ones
+         * recs - usually it`s what Normalize() returns
+         */
         public static List<CharRecord> GetFreqDifference(List<CharRecord> recs)
         {
             List<CharRecord> diffs = new List<CharRecord>();
-            List<CharRecord> exam = Normalize(recs);
+            //List<CharRecord> exam = Normalize(recs);
+            List<CharRecord> exam = recs;
             for (int i = 0; i < englLiteralsFreq.Count; i++)
             {
                 CharRecord eng = englLiteralsFreq[i];
@@ -435,6 +446,13 @@ namespace CipherBreaker
             return diffs;
         }
 
+        //special version of GetFreqDifference() which treats letters in different registry as different letters needed
+
+
+        /*
+         * returns a max difference in percents between original text letters frequencies and english ones
+         * recs - usually it`s what Normalize() returns
+         */
         public static double GetMaxFreqDifference(List<CharRecord> recs)
         {
             List<CharRecord> diffs = GetFreqDifference(recs);
@@ -466,5 +484,30 @@ namespace CipherBreaker
         {
             return GetBigramsPresence(text) > 0.5;
         }
+
+        /*
+         * returns shifted list of letter frequencies
+         * freqs - it`s usually what Normalize() returns
+         */
+        public static List<CharRecord> MoveFrequenciesBy(List<CharRecord> freqs, int offset)
+        {
+            List<CharRecord> moved = new List<CharRecord>();
+            List<CharRecord> inter = freqs;
+            for (int i = 0, j = 0; i < freqs.Count; i++)
+            {
+                if (i + offset < freqs.Count)
+                {
+                    moved.Add(inter[i + offset]);
+                }
+                else
+                {
+                    moved.Add(inter[j]);
+                    j++;
+                }
+            }
+            return moved;
+        }
+
+
     }
 }
