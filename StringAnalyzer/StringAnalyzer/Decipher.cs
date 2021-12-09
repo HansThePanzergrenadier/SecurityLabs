@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -189,26 +190,60 @@ namespace CipherBreaker
 
         public static char GetXorKeyLetter(char[] group)
         {
-            double[] maxDiffs = new double[256];
+            double[] aveDiffs = new double[256];
             for (int i = 0; i < 256; i++)
             {
-                maxDiffs[i] = 
-                    CharRecord.GetMaxFreqDifference(
-                        CharRecord.Normalize(
+                aveDiffs[i] = 
+                    CharRecord.GetAveFreqDifferenceAll(
+                        CharRecord.NormalizeAllRegs(
                             CharRecord.CountRecords(
                                 CaesarXor(group, i))));
             }
             int minDiffIndex = -1;
             double minDiff = double.MaxValue;
-            for (int i = 0; i < maxDiffs.Length; i++)
+            for (int i = 0; i < aveDiffs.Length; i++)
             {
-                if (Math.Abs(maxDiffs[i]) < Math.Abs(minDiff))
+                if (Math.Abs(aveDiffs[i]) < Math.Abs(minDiff))
                 {
-                    minDiff = maxDiffs[i];
+                    minDiff = aveDiffs[i];
                     minDiffIndex = i;
                 }
             }
             return Convert.ToChar(minDiffIndex);
+        }
+
+        public static List<char> GetXorKeyLetterCandidates(char[] group)
+        {
+            double[] aveDiffs = new double[256];
+            List<char> cands = new List<char>();
+            for (int i = 0; i < 256; i++)
+            {
+                aveDiffs[i] =
+                    CharRecord.GetAveFreqDifferenceAll(
+                        CharRecord.NormalizeAllRegs(
+                            CharRecord.CountRecords(
+                                CaesarXor(group, i))));
+            }
+            int minDiffIndex = -1;
+            double minDiff = double.MaxValue;
+            for (int i = 0; i < aveDiffs.Length; i++)
+            {
+                if (Math.Abs(aveDiffs[i]) < Math.Abs(minDiff))
+                {
+                    minDiff = aveDiffs[i];
+                    minDiffIndex = i;
+                }
+            }
+            cands.Add(Convert.ToChar(minDiffIndex));
+            //look for same diffs
+            for(int i = minDiffIndex + 1; i < aveDiffs.Length; i++)
+            {
+                if(aveDiffs[i] == minDiff)
+                {
+                    cands.Add(Convert.ToChar(i));
+                }
+            }
+            return cands;
         }
 
         public static string GetXorKey(char[] text)
@@ -220,6 +255,34 @@ namespace CipherBreaker
                 result += GetXorKeyLetter(el);
             }
             return result;
+        }
+
+        public static List<string> GetXorKeyCandidates(char[] text)
+        {
+            List<string> inter = new List<string>();
+            List<string> keys = new List<string>();
+            List<char[]> groups = SplitIntoGroups(text, GetKeyLength(text, 20, 5));
+            foreach (var el in groups)
+            {
+                inter.Add(new string(GetXorKeyLetterCandidates(el).ToArray()));
+            }
+
+            GetCombination(inter.ToArray(), "", 0, keys);
+
+            return keys;
+        }
+
+        public static void GetCombination(string[] str, string partial, int p, List<string> result)
+        {
+            if (p == str.Length)
+            {
+                result.Add(partial);
+                return;
+            }
+            for (int i = 0; i != str[p].Length; i++)
+            {
+                GetCombination(str, partial + str[p][i], p + 1, result);
+            }
         }
 
         public static char[] DecryptByXorKey(char[] text, string key)
@@ -246,12 +309,10 @@ namespace CipherBreaker
         {
             string converted = Encoding.UTF8.GetString(Convert.FromBase64String(new string(text)));
             char[] result = converted.ToCharArray();
-            for(int i = 0; i < converted.Length; i++)
-            {
-                result[i] = (char)converted[i];
-            }
             return result;
         }
+
+        
     }
 }
 

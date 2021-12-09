@@ -78,6 +78,62 @@ namespace CipherBreaker
             new CharRecord('z', 0.074)
         };
 
+        public static List<CharRecord> englLiteralsFreqAll = new List<CharRecord>()
+        {
+            new CharRecord('A', 8.167),
+            new CharRecord('B', 1.492),
+            new CharRecord('C', 2.782),
+            new CharRecord('D', 4.253),
+            new CharRecord('E', 12.702),
+            new CharRecord('F', 2.228),
+            new CharRecord('G', 2.015),
+            new CharRecord('H', 6.094),
+            new CharRecord('I', 6.966),
+            new CharRecord('J', 0.153),
+            new CharRecord('K', 0.772),
+            new CharRecord('L', 4.025),
+            new CharRecord('M', 2.406),
+            new CharRecord('N', 6.749),
+            new CharRecord('O', 7.507),
+            new CharRecord('P', 1.929),
+            new CharRecord('Q', 0.095),
+            new CharRecord('R', 5.987),
+            new CharRecord('S', 6.327),
+            new CharRecord('T', 9.056),
+            new CharRecord('U', 2.758),
+            new CharRecord('V', 0.978),
+            new CharRecord('W', 2.360),
+            new CharRecord('X', 0.150),
+            new CharRecord('Y', 1.974),
+            new CharRecord('Z', 0.074),
+            new CharRecord('a', 8.167),
+            new CharRecord('b', 1.492),
+            new CharRecord('c', 2.782),
+            new CharRecord('d', 4.253),
+            new CharRecord('e', 12.702),
+            new CharRecord('f', 2.228),
+            new CharRecord('g', 2.015),
+            new CharRecord('h', 6.094),
+            new CharRecord('i', 6.966),
+            new CharRecord('j', 0.153),
+            new CharRecord('k', 0.772),
+            new CharRecord('l', 4.025),
+            new CharRecord('m', 2.406),
+            new CharRecord('n', 6.749),
+            new CharRecord('o', 7.507),
+            new CharRecord('p', 1.929),
+            new CharRecord('q', 0.095),
+            new CharRecord('r', 5.987),
+            new CharRecord('s', 6.327),
+            new CharRecord('t', 9.056),
+            new CharRecord('u', 2.758),
+            new CharRecord('v', 0.978),
+            new CharRecord('w', 2.360),
+            new CharRecord('x', 0.150),
+            new CharRecord('y', 1.974),
+            new CharRecord('z', 0.074)
+        };
+
         public enum SortingMode
         {
             ByNumber,
@@ -345,6 +401,20 @@ namespace CipherBreaker
             return result;
         }
 
+        public static List<CharRecord> AddAllMissingLetters(List<CharRecord> recs)
+        {
+            List<CharRecord> result = new List<CharRecord>();
+            result.AddRange(recs);
+            foreach (CharRecord el in englLiteralsFreqAll)
+            {
+                if (!Contains(result, el.Character))
+                {
+                    result.Add(new CharRecord(el.Character, 0));
+                }
+            }
+            return result;
+        }
+
         public static List<CharRecord> Normalize(List<CharRecord> recs)
         {
             List<CharRecord> result = new List<CharRecord>();
@@ -354,6 +424,17 @@ namespace CipherBreaker
                     SortRecordsByChar(
                         AddMissingLetters(
                             MergeSameLetters(result)))));
+            return result;
+        }
+
+        public static List<CharRecord> NormalizeAllRegs(List<CharRecord> recs)
+        {
+            List<CharRecord> result = new List<CharRecord>();
+            result.AddRange(recs);
+            result = TakeLetters(
+                        ConvertToPercentage(
+                            SortRecordsByChar(
+                                AddAllMissingLetters(result))));
             return result;
         }
 
@@ -402,6 +483,14 @@ namespace CipherBreaker
             DrawGraphics(englLiteralsFreq, 30);
         }
 
+        public static void DrawGraphicsWithExampleAll(List<CharRecord> recs)
+        {
+            int startY = Console.CursorTop;
+            DrawGraphics(NormalizeAllRegs(recs));
+            Console.CursorTop = startY;
+            DrawGraphics(englLiteralsFreqAll, 30);
+        }
+
         /*
          * check if english using frequency analysis
          * recs - usually it`s what Normalize() returns
@@ -446,8 +535,19 @@ namespace CipherBreaker
             return diffs;
         }
 
-        //special version of GetFreqDifference() which treats letters in different registry as different letters needed
-
+        public static List<CharRecord> GetFreqDifferenceAll(List<CharRecord> recs)
+        {
+            List<CharRecord> diffs = new List<CharRecord>();
+            //List<CharRecord> exam = Normalize(recs);
+            List<CharRecord> exam = recs;
+            for (int i = 0; i < englLiteralsFreqAll.Count; i++)
+            {
+                CharRecord eng = englLiteralsFreqAll[i];
+                CharRecord rec = exam[i];
+                diffs.Add(new CharRecord(eng.Character, eng.Count - rec.Count));
+            }
+            return diffs;
+        }
 
         /*
          * returns a max difference in percents between original text letters frequencies and english ones
@@ -465,6 +565,17 @@ namespace CipherBreaker
                 }
             }
             return result;
+        }
+
+        public static double GetAveFreqDifferenceAll(List<CharRecord> recs)
+        {
+            List<CharRecord> diffs = GetFreqDifferenceAll(recs);
+            double sum = 0;
+            foreach (CharRecord el in diffs)
+            {
+                sum += el.Count;
+            }
+            return sum/diffs.Count;
         }
 
         public static double GetBigramsPresence(string text)
