@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CipherBreaker
 {
@@ -238,13 +239,13 @@ namespace CipherBreaker
 
         public static char[] BreakXorVigenere(char[] text)
         {
-            return DecryptByXorKey(text, "L0l");
+            return DecryptByXorKey(text, GetXorKey(text));
         }
 
         public static char[] DecodeFromBase64(char[] text)
         {
-            byte[] converted = Convert.FromBase64CharArray(text, 0, text.Length);
-            char[] result = new char[converted.Length];
+            string converted = Encoding.UTF8.GetString(Convert.FromBase64String(new string(text)));
+            char[] result = converted.ToCharArray();
             for(int i = 0; i < converted.Length; i++)
             {
                 result[i] = (char)converted[i];
