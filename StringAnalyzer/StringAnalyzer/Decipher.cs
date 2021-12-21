@@ -149,7 +149,7 @@ namespace CipherBreaker
                 }
             }
             List<char[]> result = new List<char[]>();
-            foreach(var el in groups)
+            foreach (var el in groups)
             {
                 result.Add(el.ToArray());
             }
@@ -160,15 +160,15 @@ namespace CipherBreaker
         {
             List<CharRecord> normalized = CharRecord.Normalize(CharRecord.CountRecords(group));
             double[] maxDiffs = new double[256];
-            for(int i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
             {
                 maxDiffs[i] = CharRecord.GetMaxFreqDifference(CharRecord.MoveFrequenciesBy(normalized, i));
             }
             int minDiffIndex = -1;
             double minDiff = double.MaxValue;
-            for(int i = 0; i < maxDiffs.Length; i++)
+            for (int i = 0; i < maxDiffs.Length; i++)
             {
-                if(Math.Abs(maxDiffs[i]) < Math.Abs(minDiff))
+                if (Math.Abs(maxDiffs[i]) < Math.Abs(minDiff))
                 {
                     minDiff = maxDiffs[i];
                     minDiffIndex = i;
@@ -181,7 +181,7 @@ namespace CipherBreaker
         {
             string result = "";
             List<char[]> groups = SplitIntoGroups(text, GetKeyLength(text, 20, 5));
-            foreach(var el in groups)
+            foreach (var el in groups)
             {
                 result += GetSummingKeyLetter(el);
             }
@@ -193,7 +193,7 @@ namespace CipherBreaker
             double[] aveDiffs = new double[256];
             for (int i = 0; i < 256; i++)
             {
-                aveDiffs[i] = 
+                aveDiffs[i] =
                     CharRecord.GetAveFreqDifferenceAll(
                         CharRecord.NormalizeAllRegs(
                             CharRecord.CountRecords(
@@ -236,9 +236,9 @@ namespace CipherBreaker
             }
             cands.Add(Convert.ToChar(minDiffIndex));
             //look for same diffs
-            for(int i = minDiffIndex + 1; i < aveDiffs.Length; i++)
+            for (int i = minDiffIndex + 1; i < aveDiffs.Length; i++)
             {
-                if(aveDiffs[i] == minDiff)
+                if (aveDiffs[i] == minDiff)
                 {
                     cands.Add(Convert.ToChar(i));
                 }
@@ -289,9 +289,9 @@ namespace CipherBreaker
         {
             char[] result = new char[text.Length];
             char[] keyArr = key.ToCharArray();
-            for(int i = 0, j = 0; i < text.Length; i++, j++)
+            for (int i = 0, j = 0; i < text.Length; i++, j++)
             {
-                if(j >= keyArr.Length)
+                if (j >= keyArr.Length)
                 {
                     j = 0;
                 }
@@ -312,7 +312,56 @@ namespace CipherBreaker
             return result;
         }
 
-        
+        public static char[] ExchangeChars(char[] input, List<ExchangeRecord> exchangeList)
+        {
+            char[] result = new char[input.Length];
+            input.CopyTo(result, 0);
+            for (int i = 0; i < exchangeList.Count; i++)
+            {
+                for (int j = 0; j < result.Length; j++)
+                {
+                    if (exchangeList[i].a.Equals(result[j]))
+                    {
+                        result[j] = exchangeList[i].b;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static char[] BreakExchange(char[] input, List<CharRecord> alphabet, int retriesIfUseless)
+        {
+            List<ExchangeRecord> key = ExchangeRecord.GenExchangeList(alphabet);
+            char[] text = new char[input.Length];
+            input.CopyTo(text, 0);
+            double englishness = 100;
+            int uselessExchangingCounter = retriesIfUseless;
+            Random rnd = new Random();
+            do
+            {
+                List<ExchangeRecord> candidate = ExchangeRecord.ChangeExchangeList(key, rnd);
+                //double newEnglishness = CharRecord.GetBigramsPresence(new string(ExchangeChars(text, candidate)));
+                //double newEnglishness = StringRecord.GetPresence(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
+                List<StringRecord> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
+                List<StringRecord> diffs = StringRecord.GetDiffs(counted, StringRecord.trigramFreqEngl);
+                double newEnglishness = StringRecord.GetCountSum(diffs);
+                if (newEnglishness < englishness)
+                {
+                    englishness = newEnglishness;
+                    key = candidate;
+                    //uselessExchangingCounter = retriesIfUseless;
+                }
+                else if (newEnglishness == englishness)
+                {
+                    //uselessExchangingCounter--;
+                }
+                uselessExchangingCounter--;
+            } while (!StringRecord.GetLowerString(ExchangeChars(text, key)).Contains("cipher"));
+
+            Console.WriteLine(englishness);
+            StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
+            return ExchangeChars(text, key);
+        }
     }
 }
 

@@ -10,7 +10,10 @@ namespace CipherBreaker
     {
         public char Character;
         public double Count;
-        public static String[] bigrams = new string[]
+
+        
+
+        public static string[] bigrams = new string[]
         {
             "th",
             "he",
@@ -46,7 +49,7 @@ namespace CipherBreaker
             "ss",
             "ll",
             "rr",
-            "oo",
+            "oo"
         };
         public static List<CharRecord> englLiteralsFreq = new List<CharRecord>()
         {
@@ -76,6 +79,36 @@ namespace CipherBreaker
             new CharRecord('x', 0.150),
             new CharRecord('y', 1.974),
             new CharRecord('z', 0.074)
+        };
+
+        public static List<CharRecord> englLiteralsFreqCap = new List<CharRecord>()
+        {
+            new CharRecord('A', 8.167),
+            new CharRecord('B', 1.492),
+            new CharRecord('C', 2.782),
+            new CharRecord('D', 4.253),
+            new CharRecord('E', 12.702),
+            new CharRecord('F', 2.228),
+            new CharRecord('G', 2.015),
+            new CharRecord('H', 6.094),
+            new CharRecord('I', 6.966),
+            new CharRecord('J', 0.153),
+            new CharRecord('K', 0.772),
+            new CharRecord('L', 4.025),
+            new CharRecord('M', 2.406),
+            new CharRecord('N', 6.749),
+            new CharRecord('O', 7.507),
+            new CharRecord('P', 1.929),
+            new CharRecord('Q', 0.095),
+            new CharRecord('R', 5.987),
+            new CharRecord('S', 6.327),
+            new CharRecord('T', 9.056),
+            new CharRecord('U', 2.758),
+            new CharRecord('V', 0.978),
+            new CharRecord('W', 2.360),
+            new CharRecord('X', 0.150),
+            new CharRecord('Y', 1.974),
+            new CharRecord('Z', 0.074)
         };
 
         public static List<CharRecord> englLiteralsFreqAll = new List<CharRecord>()
@@ -591,11 +624,6 @@ namespace CipherBreaker
             return GetBigramsPresence(text) > threshold;
         }
 
-        public static bool CheckEnglish(string text)
-        {
-            return GetBigramsPresence(text) > 0.5;
-        }
-
         /*
          * returns shifted list of letter frequencies
          * freqs - it`s usually what Normalize() returns
@@ -619,6 +647,36 @@ namespace CipherBreaker
             return moved;
         }
 
+        public static double GetDifference(CharRecord a, CharRecord b)
+        {
+            return Math.Abs(a.Count - b.Count);
+        }
 
+        //doesnt work with exchange cipher
+        public static CharRecord FindNearestExchange(CharRecord input, List<CharRecord> alphabet)
+        {
+            double minDiff = double.MaxValue;
+            int minIndex = -1;
+            for (int i = 0; i < alphabet.Count; i++)
+            {
+                CharRecord el = alphabet[i];
+                if (minDiff > GetDifference(el, input))
+                {
+                    minDiff = GetDifference(el, input);
+                    minIndex = i;
+                }
+            }
+            return alphabet[minIndex];
+        }
+
+        public static char[] GetLowerChars(char[] input)
+        {
+            char[] lower = new char[input.Length];
+            for (int i = 0; i < input.Length; i++)
+            {
+                lower[i] = char.ToLower(input[i]);
+            }
+            return lower;
+        }
     }
 }

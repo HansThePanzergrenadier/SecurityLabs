@@ -162,12 +162,10 @@ namespace CipherBreaker
             {
                 //there is some to test
                 //Console.WriteLine("Key: " + Decipher.GetXorKey(Decipher.DecodeFromBase64(input)));
-                //Console.WriteLine(Decipher.BreakXorVigenere(Decipher.DecodeFromBase64(input)));
-                //CharRecord.DrawGraphicsWithExampleAll(CharRecord.CountRecords(Decipher.SplitIntoGroups(Decipher.DecodeFromBase64(input), 3)[1]));
-                foreach (var el in Decipher.GetXorKeyCandidates(Decipher.DecodeFromBase64(input)))
-                {
-                    Console.WriteLine(el);
-                }
+                //CharRecord.DrawGraphicsWithExample(CharRecord.CountRecords(input));
+
+                Console.WriteLine(Decipher.BreakExchange(CharRecord.GetLowerChars(input), CharRecord.englLiteralsFreq, 10));
+                
             }
 
             Console.ReadKey();
