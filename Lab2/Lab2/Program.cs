@@ -23,7 +23,8 @@ namespace Lab2
             {
                 lines.Add(XSalsa20Breaker.HexStringToByteArray(text[i]));
             }
-            string word = "For who would bear the whips and scorns of time,";
+            //string word = "For who would bear the whips and scorns of time,";
+            string word = "Then";
 
             XSalsa20Breaker.ProceedAnalisys(lines, word);
         }

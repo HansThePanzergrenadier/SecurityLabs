@@ -25,24 +25,24 @@ namespace Lab2
             float bestTextPercent = 0;
             List<string> bestText = new List<string>(ciphers.Count);
 
-            for (int first = 0; first < ciphers.Count; first++)
+            for (int i = 0; i < ciphers.Count; i++)
             {
                 List<string> currentText = new List<string>(ciphers.Count);
 
-                for (int second = 0; second < ciphers.Count; second++)
+                for (int j = 0; j < ciphers.Count; j++)
                 {
-                    int minLength = Math.Min(ciphers[first].Length, ciphers[second].Length);
+                    int minLength = Math.Min(ciphers[i].Length, ciphers[j].Length);
                     byte[] cipherArrayFirst = new byte[minLength];
-                    Array.Copy(ciphers[first], cipherArrayFirst, minLength);
+                    Array.Copy(ciphers[i], cipherArrayFirst, minLength);
                     byte[] cipherArraySecond = new byte[minLength];
-                    Array.Copy(ciphers[second], cipherArraySecond, minLength);
+                    Array.Copy(ciphers[j], cipherArraySecond, minLength);
 
                     byte[] xorArr = Xor(cipherArrayFirst, cipherArraySecond);
                     byte[] wordArr = StringToByteArray(str);
                     byte[] resultArr = Xor(xorArr, wordArr);
                     string resultStr = ByteArrayToString(resultArr);
                     currentText.Add(resultStr);
-                    Console.WriteLine($"[{first}][{second}]: \t" + resultStr);
+                    Console.WriteLine($"[{i}][{j}]: \t" + resultStr);
                 }
                 Console.WriteLine();
 
