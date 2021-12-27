@@ -45,5 +45,13 @@ namespace CipherBreaker
 
             return result;
         }
+
+        public static void Show(List<ExchangeRecord> recs)
+        {
+            foreach(var el in recs)
+            {
+                Console.WriteLine($"{el.a} - {el.b}");
+            }
+        }
     }
 }

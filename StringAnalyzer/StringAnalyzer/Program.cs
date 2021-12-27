@@ -161,11 +161,26 @@ namespace CipherBreaker
             else
             {
                 //there is some to test
-                //Console.WriteLine("Key: " + Decipher.GetXorKey(Decipher.DecodeFromBase64(input)));
-                //CharRecord.DrawGraphicsWithExample(CharRecord.CountRecords(input));
 
-                Console.WriteLine(Decipher.BreakExchange(CharRecord.GetLowerChars(input), CharRecord.englLiteralsFreq, 10));
-                
+                //Console.WriteLine(Decipher.DecodeFromBase64(input));
+
+                //Console.WriteLine(Decipher.AttackCaesarXor(input));
+                /*
+                foreach (var el in Decipher.BreakXorVigenereAllVariants(Decipher.DecodeFromBase64(input)))
+                {
+                    Console.WriteLine(el);
+                    Console.WriteLine();
+                }
+                */
+
+                //Console.WriteLine(Decipher.BreakExchange(StringRecord.GetLowerString(input).ToCharArray(), CharRecord.englLiteralsFreq, 10000));
+                /*
+                string key = Decipher.DecipherMonoSubstitution(new string(input));
+                Console.WriteLine(key);
+                Console.WriteLine(MonoSubstitutionCipher.Decrypt(key, new string(input)));
+                */
+                //Decipher.PolySubstitution(new string(input));
+
             }
 
             Console.ReadKey();

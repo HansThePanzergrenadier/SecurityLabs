@@ -1,7 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using GeneticSharp.Domain.Crossovers;
+using GeneticSharp.Domain.Mutations;
+using GeneticSharp.Domain.Populations;
+using GeneticSharp.Domain.Selections;
+using GeneticSharp.Domain.Terminations;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Algorithm = GeneticSharp.Domain.GeneticAlgorithm;
 
 namespace CipherBreaker
 {
@@ -305,6 +311,17 @@ namespace CipherBreaker
             return DecryptByXorKey(text, GetXorKey(text));
         }
 
+        public static List<string> BreakXorVigenereAllVariants(char[] text)
+        {
+            List<string> result = new List<string>(); 
+            List<string> keys = GetXorKeyCandidates(text);
+            foreach(var el in keys)
+            {
+                result.Add(new string(DecryptByXorKey(text, el)));
+            }
+            return result;
+        }
+
         public static char[] DecodeFromBase64(char[] text)
         {
             string converted = Encoding.UTF8.GetString(Convert.FromBase64String(new string(text)));
@@ -349,18 +366,146 @@ namespace CipherBreaker
                 {
                     englishness = newEnglishness;
                     key = candidate;
-                    //uselessExchangingCounter = retriesIfUseless;
+                    uselessExchangingCounter = retriesIfUseless;
                 }
                 else if (newEnglishness == englishness)
                 {
-                    //uselessExchangingCounter--;
+                    uselessExchangingCounter--;
                 }
-                uselessExchangingCounter--;
-            } while (!StringRecord.GetLowerString(ExchangeChars(text, key)).Contains("cipher"));
+                //uselessExchangingCounter--;
+            } while (uselessExchangingCounter > 0);
 
             Console.WriteLine(englishness);
             StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
+            ExchangeRecord.Show(key);
             return ExchangeChars(text, key);
+        }
+
+        public static string BreakMonoSum(string text)
+        {
+            var elite = new EliteSelection();
+            
+            var xover = new PositionBasedCrossover();
+            
+            var mut = new TworsMutation();
+            var fitf = new SubstitutionFitness(text);
+
+            var chromo = new SubstitutionChromosome();
+
+            var pop = new Population(200, 250, chromo);
+
+            var ga = new Algorithm(pop, fitf, elite, xover, mut)
+            {
+                Termination = new GenerationNumberTermination(500),
+                CrossoverProbability = 0.4f,
+                MutationProbability = 0.85f
+            };
+
+            ga.Start();
+
+            Console.WriteLine($"Key: {ga.BestChromosome}");
+
+            return ((SubstitutionChromosome)ga.BestChromosome).ToString();
+        }
+
+        public static void BreakPolySub(string text)
+        {
+            for (int i = 2; i < 6; i++)
+            {
+                Console.WriteLine($"finding n-gram diffs, n = {i}");
+                var trigramDistances = FrequencyAnalysis.GetNGramDistances(i, text);
+                foreach (var distance in trigramDistances.Take(5))
+                {
+                    Console.WriteLine($"{distance.Key}: {string.Join(", ", distance.Value)}");
+                }
+                Console.WriteLine();
+            }
+            var keyLength = Utils.GetInt("key length", text.Length, 1);
+
+            var rows = text.Chunk(keyLength).ToArray();
+            var columns = Enumerable
+                .Range(0, keyLength)
+                .Select(i => rows.Select(row => row
+                        .ToCharArray()
+                        .ElementAt(i))
+                    .ToArray())
+                .Select(columnLetters => new string(columnLetters));
+
+            Console.WriteLine("Columns: ");
+            var keys = new List<string>();
+            // use genetic algorithm to every column
+            foreach (var column in columns)
+            {
+                Console.WriteLine(column);
+                var key = BreakMonoSum(column);
+                keys.Add(key);
+            }
+            Console.WriteLine();
+
+            (char plain, char cipher)[][] knownLetters =
+            {
+               new[] { ('C', 'U'), ('T', 'Z'), ('I', 'B'), ('B', 'E'), ('Y', 'X'), ('S', 'M'), ('R', 'L'), ('D', 'I'), ('L', 'O'), ('O', 'K'), ('N', 'F'), ('P', 'N'), ('E', 'J'), ('A', 'T'), ('H', 'P'), ('K', 'A'), ('W', 'Q'), ('Q', 'D'), ('G', 'S'), ('U', 'R'), ('M', 'H'), ('F', 'Y'), ('J', 'V') },
+               new[] { ('A', 'Y'), ('C', 'J'), ('T', 'K'), ('I', 'D'), ('S', 'O'), ('H', 'I'), ('E', 'E'), ('O', 'M'), ('N', 'T'), ('F', 'U'), ('D', 'B'), ('B', 'Q'), ('U', 'Z'), ('R', 'H'), ('G', 'N'), ('M', 'X'), ('L', 'L'), ('Y', 'V'), ('M', 'P'), ('W', 'A'), ('Z', 'C'), ('K', 'W'), ('P', 'R') },
+               new[] { ('P', 'X'), ('L', 'T'), ('A', 'O'), ('T', 'R'), ('L', 'T'), ('E', 'A'), ('N', 'U'), ('S', 'Y'), ('U', 'G'), ('B', 'Q'), ('O', 'I'), ('I', 'H'), ('D', 'P'), ('H', 'Z'), ('K', 'L'), ('Y', 'M'), ('R', 'D'), ('W', 'W'), ('G', 'K'), ('X', 'B'), ('F', 'S'), ('C', 'F'), ('M', 'J') },
+               new[] { ('I', 'C'), ('L', 'H'), ('P', 'E'), ('L', 'H'), ('A', 'L'), ('H', 'K'), ('G', 'P'), ('U', 'X'), ('O', 'U'), ('E', 'N'), ('N', 'A'), ('C', 'G'), ('S', 'Q'), ('R', 'S'), ('B', 'J'), ('T', 'Y'), ('W', 'Z'), ('X', 'V'), ('N', 'T'), ('Y', 'M'), ('J', 'B'), ('M', 'D'), ('D', 'O'), ('V', 'W'), ('F', 'R'), ('Z', 'I') }
+            };
+
+
+            for (int i = 0; i < keys.Count(); i++)
+            {
+                string key = keys[i];
+                string newKey = key;
+                for (int j = 0; j < knownLetters[i].Length; j++)
+                {
+                    (char plain, char cipher) knownLetter = knownLetters[i][j];
+                    newKey = newKey.ChangeKeyChar(knownLetter.plain, knownLetter.cipher);
+                }
+                keys[i] = newKey;
+            }
+
+            Console.WriteLine("\nKeys: ");
+            foreach (var key in keys)
+            {
+                Console.WriteLine(key);
+            }
+            Console.WriteLine();
+
+            var decipheredText = PolySubstitutionCipher.Decrypt(keys.ToArray(), text);
+
+            for (int i = 1; i <= decipheredText.Length; i++)
+            {
+                if ((i - 1) % 100 == 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(text.Substring(i - 1, text.Substring(i - 1).Length >= 100 ? 100 : text.Substring(i - 1).Length % 100));
+                    Console.WriteLine(string.Concat(Enumerable.Repeat("1234", 25)));
+                }
+
+                char ch = text[i - 1];
+
+                bool firstAlphabet = i % 4 == 1 && knownLetters[0].Any(kl => kl.cipher == ch);
+
+                bool secondAlphabet = i % 4 == 2 && knownLetters[1].Any(kl => kl.cipher == ch);
+
+                bool thirdAlphabet = i % 4 == 3 && knownLetters[2].Any(kl => kl.cipher == ch);
+
+                bool fourthAlphabet = i % 4 == 0 && knownLetters[3].Any(kl => kl.cipher == ch);
+                
+                if (firstAlphabet || secondAlphabet || thirdAlphabet || fourthAlphabet)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write(decipheredText[i - 1]);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(decipheredText[i - 1]);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+            }
+            Console.WriteLine();
+            Console.WriteLine(decipheredText);
         }
     }
 }

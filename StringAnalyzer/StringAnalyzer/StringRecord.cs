@@ -34,6 +34,36 @@ namespace CipherBreaker
         };
         */
 
+        public static List<string> alphabet = new List<string>()
+        {
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n",
+            "o",
+            "p",
+            "q",
+            "r",
+            "s",
+            "t",
+            "u",
+            "v",
+            "w",
+            "x",
+            "y",
+            "z"
+        };
+
 
         public static List<StringRecord> trigramFreqEngl = readFromFile();
         public static List<StringRecord> readFromFile()
@@ -49,7 +79,34 @@ namespace CipherBreaker
                 decimal parsedNum = decimal.Parse(number, NumberStyles.Float, format);
                 result.Add(new StringRecord(gramm, (double)parsedNum * 100));
             }
-            return result;
+
+            List<StringRecord> reduced = new List<StringRecord>();
+            int index = 0;
+            string a, b, c;
+            while (true)
+            {
+                a = alphabet[index];
+                index++;
+                if (index >= alphabet.Count)
+                    break;
+                b = alphabet[index];
+                index++;
+                if (index >= alphabet.Count)
+                    break;
+                c = alphabet[index];
+                index++;
+                if (index >= alphabet.Count)
+                    break;
+                foreach (var el in result)
+                {
+                    if(el.gramm.Contains(a) && el.gramm.Contains(b) && el.gramm.Contains(c))
+                    {
+                        reduced.Add(el);
+                    }
+                }
+            }
+
+            return reduced;
         }
 
         public static void PrintList(List<StringRecord> records)
@@ -62,8 +119,8 @@ namespace CipherBreaker
 
         public static StringRecord CountPercents(string input, string substring)
         {
-            double total = input.Length / substring.Length;
-            int count = 0;
+            double total = (double)input.Length / substring.Length;
+            double count = 0;
             int index = 0;
             while (input.IndexOf(substring, index) >= 0)
             {
