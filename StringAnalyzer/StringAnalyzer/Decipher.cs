@@ -357,15 +357,13 @@ namespace CipherBreaker
             do
             {
                 List<ExchangeRecord> candidate = ExchangeRecord.ChangeExchangeList(key, rnd);
-                //double newEnglishness = CharRecord.GetBigramsPresence(new string(ExchangeChars(text, candidate)));
-                //double newEnglishness = StringRecord.GetPresence(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
-                char[] deciphered = ExchangeChars(text, candidate);
+                //char[] deciphered = ExchangeChars(text, candidate);
                 //Dictionary<string, double> reducedEthalon = StringRecord.ReduceTrigrams(StringRecord.trigramFreqEngl, text);
                 Dictionary<string, double> reducedEthalon = StringRecord.trigramFreqEngl;
                 //Dictionary<string, double> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(deciphered), reducedEthalon);
                 //Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, reducedEthalon);
                 //double newEnglishness = StringRecord.GetCountSum(diffs);
-                double newEnglishness = GetFitness(deciphered, candidate, reducedEthalon);
+                double newEnglishness = GetFitness(text, candidate, reducedEthalon);
                 if (newEnglishness < englishness)
                 {
                     englishness = newEnglishness;
@@ -380,8 +378,9 @@ namespace CipherBreaker
             } while (uselessExchangingCounter > 0);
 
             Console.WriteLine(englishness);
-            //StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
+            StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
             ExchangeRecord.Show(key);
+            Console.WriteLine(GetFitness(text, key, StringRecord.trigramFreqEngl));
             return ExchangeChars(text, key);
         }
 
@@ -420,9 +419,9 @@ namespace CipherBreaker
         public static double GetFitness(char[] text, List<ExchangeRecord> key, Dictionary<string, double> ethalonNGramsFreqs)
         {
             char[] deciphered = ExchangeChars(text, key);
-            Dictionary<string, double> ethalonReduced = StringRecord.ReduceTrigrams(ethalonNGramsFreqs, deciphered);
+            //Dictionary<string, double> ethalonReduced = StringRecord.ReduceTrigrams(ethalonNGramsFreqs, deciphered);
             Dictionary<string, double> textTrigrams = CountTextTrigrams(new string(deciphered));
-            //List<StringRecord> ethalonReduced = ethalonNGramsFreqs;
+            Dictionary<string, double> ethalonReduced = ethalonNGramsFreqs;
             double result = 0;
             foreach (var el in textTrigrams)
             {
@@ -438,7 +437,7 @@ namespace CipherBreaker
                 }
                 */
                 ethalonTrigramFreq = ethalonReduced.ContainsKey(el.Key) ? ethalonReduced[el.Key] : 0;
-                result += textTrigrams[el.Key] - ethalonTrigramFreq;
+                result += Math.Abs(textTrigrams[el.Key] - ethalonTrigramFreq);
             }
 
             /*

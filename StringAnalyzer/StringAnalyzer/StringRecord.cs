@@ -97,14 +97,14 @@ namespace CipherBreaker
         public static Dictionary<string, double> trigramFreqEngl = readFromFile();
         static Dictionary<string, double> readFromFile()
         {
-            StreamReader reader = new StreamReader(filename);
+            StreamReader reader = new StreamReader(filenameWrite);
             Dictionary<string, double> result = new Dictionary<string, double>();
             while (!reader.EndOfStream)
             {
                 string line = reader.ReadLine();
                 string gramm = GetLowerString(line.Split(' ')[0].ToCharArray());
                 string number = line.Split(' ')[1];
-                IFormatProvider format = new NumberFormatInfo { NumberDecimalSeparator = "." };
+                IFormatProvider format = new NumberFormatInfo { NumberDecimalSeparator = "," };
                 decimal parsedNum = decimal.Parse(number, NumberStyles.Float, format);
                 result.Add(gramm, (double)parsedNum * 100);
             }
@@ -163,7 +163,7 @@ namespace CipherBreaker
             
             foreach(var el in trigrams)
             {
-                string line = $"{el.Key} {el.Value:0.############E-0}";
+                string line = $"{el.Key} {el.Value / 100:0.############E-0}";
                 writer.WriteLine(line);
             }
             writer.Close();
