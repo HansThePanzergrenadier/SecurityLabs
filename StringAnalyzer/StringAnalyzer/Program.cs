@@ -173,14 +173,10 @@ namespace CipherBreaker
                 }
                 */
 
-                //Console.WriteLine(Decipher.BreakExchange(StringRecord.GetLowerString(input).ToCharArray(), CharRecord.englLiteralsFreq, 10000));
-                /*
-                string key = Decipher.DecipherMonoSubstitution(new string(input));
-                Console.WriteLine(key);
-                Console.WriteLine(MonoSubstitutionCipher.Decrypt(key, new string(input)));
-                */
-                //Decipher.PolySubstitution(new string(input));
-
+                Console.WriteLine(Decipher.BreakExchange(StringRecord.GetLowerString(input).ToCharArray(), CharRecord.englLiteralsFreq, 1000000));
+                //CharRecord.DrawGraphicsWithExample(CharRecord.Normalize(CharRecord.CountRecords(input)));
+                //Console.WriteLine(Decipher.BreakExchangeByGenetic(StringRecord.GetLowerString(input).ToCharArray(), 150, 500, StringRecord.trigramFreqEngl));
+                //StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(input), StringRecord.trigramFreqEngl));
             }
 
             Console.ReadKey();

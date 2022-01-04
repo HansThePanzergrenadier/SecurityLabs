@@ -33,6 +33,34 @@ namespace CipherBreaker
             new StringRecord("tio", 0.31)
         };
         */
+        /*
+        public static Dictionary<string, double> trigramFreqEngl = new Dictionary<string, double>()
+        {
+            new StringRecord("the", 5.00),
+            new StringRecord("and", 0.83),
+            new StringRecord("ing", 0.41),
+            new StringRecord("ent", 0.83),
+            new StringRecord("ion", 1.25),
+            new StringRecord("for", 0.42),
+            new StringRecord("tha", 0.42),
+            new StringRecord("tio", 1.25)
+        };
+        */
+        public static Dictionary<string, double> trigramFreqEngl = FromShort();
+        static Dictionary<string, double> FromShort()
+        {
+            Dictionary<string, double> result = new Dictionary<string, double>();
+            result.Add("the", 5.00);
+            result.Add("and", 0.83);
+            result.Add("ing", 0.41);
+            result.Add("ent", 0.83);
+            result.Add("ion", 1.25);
+            result.Add("for", 0.42);
+            result.Add("tha", 0.42);
+            result.Add("tio", 1.25);
+            return result;
+        }
+        
 
         public static List<string> alphabet = new List<string>()
         {
@@ -65,11 +93,11 @@ namespace CipherBreaker
         };
 
 
-        public static List<StringRecord> trigramFreqEngl = readFromFile();
-        public static List<StringRecord> readFromFile()
+        //public static Dictionary<string, double> trigramFreqEngl = readFromFile();
+        static Dictionary<string, double> readFromFile()
         {
             StreamReader reader = new StreamReader(filename);
-            List<StringRecord> result = new List<StringRecord>();
+            Dictionary<string, double> result = new Dictionary<string, double>();
             while (!reader.EndOfStream)
             {
                 string line = reader.ReadLine();
@@ -77,47 +105,37 @@ namespace CipherBreaker
                 string number = line.Split(' ')[1];
                 IFormatProvider format = new NumberFormatInfo { NumberDecimalSeparator = "." };
                 decimal parsedNum = decimal.Parse(number, NumberStyles.Float, format);
-                result.Add(new StringRecord(gramm, (double)parsedNum * 100));
+                result.Add(gramm, (double)parsedNum * 100);
             }
 
-            List<StringRecord> reduced = new List<StringRecord>();
-            int index = 0;
-            string a, b, c;
-            while (true)
+            return result;
+        }
+
+        public static Dictionary<string, double> ReduceTrigrams(Dictionary<string, double> trigrams, char[] text)
+        {
+            Dictionary<string, double> result = new Dictionary<string, double>();
+            string strText = new string(text);
+
+            foreach(var el in trigrams)
             {
-                a = alphabet[index];
-                index++;
-                if (index >= alphabet.Count)
-                    break;
-                b = alphabet[index];
-                index++;
-                if (index >= alphabet.Count)
-                    break;
-                c = alphabet[index];
-                index++;
-                if (index >= alphabet.Count)
-                    break;
-                foreach (var el in result)
+                if (strText.Contains(el.Key))
                 {
-                    if(el.gramm.Contains(a) && el.gramm.Contains(b) && el.gramm.Contains(c))
-                    {
-                        reduced.Add(el);
-                    }
+                    result.Add(el.Key, el.Value);
                 }
             }
 
-            return reduced;
+            return result;
         }
 
-        public static void PrintList(List<StringRecord> records)
+        public static void PrintList(Dictionary<string, double> records)
         {
             foreach (var el in records)
             {
-                Console.WriteLine(el.gramm + ": " + el.count);
+                Console.WriteLine(el.Key + ": " + el.Value);
             }
         }
 
-        public static StringRecord CountPercents(string input, string substring)
+        public static double CountPercents(string input, string substring)
         {
             double total = (double)input.Length / substring.Length;
             double count = 0;
@@ -127,47 +145,48 @@ namespace CipherBreaker
                 index = input.IndexOf(substring, index) + substring.Length;
                 count++;
             }
-            return new StringRecord(substring, (count / total) * 100);
+            return (count / total) * 100;
         }
 
-        public static List<StringRecord> CountAllPercents(string input, List<StringRecord> example)
+        public static Dictionary<string, double> CountAllPercents(string input, Dictionary<string, double> example)
         {
-            List<StringRecord> result = new List<StringRecord>();
+            Dictionary<string, double> result = new Dictionary<string, double>();
             foreach (var el in example)
             {
-                result.Add(CountPercents(input, el.gramm));
+                result.Add(el.Key, CountPercents(input, el.Key));
             }
             return result;
         }
 
-        public static double GetDiff(StringRecord gramFreq, List<StringRecord> example)
+        public static double GetDiff(KeyValuePair<string, double> gramFreq, Dictionary<string, double> example)
         {
-            foreach (var el in trigramFreqEngl)
+            if (example.ContainsKey(gramFreq.Key))
             {
-                if (gramFreq.gramm.Equals(el.gramm))
-                {
-                    return Math.Abs(gramFreq.count - el.count);
-                }
+                example.TryGetValue(gramFreq.Key, out double exValue);
+                return Math.Abs(gramFreq.Value - exValue);
             }
-            throw new Exception("gramm not found");
+            else
+            {
+                throw new Exception("NGramm not found");
+            }
         }
 
-        public static List<StringRecord> GetDiffs(List<StringRecord> counted, List<StringRecord> example)
+        public static Dictionary<string, double> GetDiffs(Dictionary<string, double> counted, Dictionary<string, double> example)
         {
-            List<StringRecord> result = new List<StringRecord>();
+            Dictionary<string, double> result = new Dictionary<string, double>();
             foreach (var el in counted)
             {
-                result.Add(new StringRecord(el.gramm, GetDiff(el, example)));
+                result.Add(el.Key, GetDiff(el, example));
             }
             return result;
         }
 
-        public static double GetCountSum(List<StringRecord> freqs)
+        public static double GetCountSum(Dictionary<string, double> freqs)
         {
             double result = 0;
             foreach (var el in freqs)
             {
-                result += el.count;
+                result += el.Value;
             }
             return result;
         }

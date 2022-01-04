@@ -313,9 +313,9 @@ namespace CipherBreaker
 
         public static List<string> BreakXorVigenereAllVariants(char[] text)
         {
-            List<string> result = new List<string>(); 
+            List<string> result = new List<string>();
             List<string> keys = GetXorKeyCandidates(text);
-            foreach(var el in keys)
+            foreach (var el in keys)
             {
                 result.Add(new string(DecryptByXorKey(text, el)));
             }
@@ -329,17 +329,17 @@ namespace CipherBreaker
             return result;
         }
 
-        public static char[] ExchangeChars(char[] input, List<ExchangeRecord> exchangeList)
+        public static char[] ExchangeChars(char[] text, List<ExchangeRecord> key)
         {
-            char[] result = new char[input.Length];
-            input.CopyTo(result, 0);
-            for (int i = 0; i < exchangeList.Count; i++)
+            char[] result = new char[text.Length];
+            text.CopyTo(result, 0);
+            for (int i = 0; i < key.Count; i++)
             {
                 for (int j = 0; j < result.Length; j++)
                 {
-                    if (exchangeList[i].a.Equals(result[j]))
+                    if (key[i].a.Equals(result[j]))
                     {
-                        result[j] = exchangeList[i].b;
+                        result[j] = key[i].b;
                     }
                 }
             }
@@ -359,8 +359,8 @@ namespace CipherBreaker
                 List<ExchangeRecord> candidate = ExchangeRecord.ChangeExchangeList(key, rnd);
                 //double newEnglishness = CharRecord.GetBigramsPresence(new string(ExchangeChars(text, candidate)));
                 //double newEnglishness = StringRecord.GetPresence(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
-                List<StringRecord> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
-                List<StringRecord> diffs = StringRecord.GetDiffs(counted, StringRecord.trigramFreqEngl);
+                Dictionary<string, double> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
+                Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, StringRecord.trigramFreqEngl);
                 double newEnglishness = StringRecord.GetCountSum(diffs);
                 if (newEnglishness < englishness)
                 {
@@ -370,9 +370,9 @@ namespace CipherBreaker
                 }
                 else if (newEnglishness == englishness)
                 {
-                    uselessExchangingCounter--;
+                    //uselessExchangingCounter--;
                 }
-                //uselessExchangingCounter--;
+                uselessExchangingCounter--;
             } while (uselessExchangingCounter > 0);
 
             Console.WriteLine(englishness);
@@ -381,131 +381,231 @@ namespace CipherBreaker
             return ExchangeChars(text, key);
         }
 
-        public static string BreakMonoSum(string text)
+        /*custom genetic section*/
+
+        public static Dictionary<string, double> CountTextTrigrams(string text)
         {
-            var elite = new EliteSelection();
-            
-            var xover = new PositionBasedCrossover();
-            
-            var mut = new TworsMutation();
-            var fitf = new SubstitutionFitness(text);
+            Dictionary<string, double> result = new Dictionary<string, double>();
 
-            var chromo = new SubstitutionChromosome();
-
-            var pop = new Population(200, 250, chromo);
-
-            var ga = new Algorithm(pop, fitf, elite, xover, mut)
+            int counter = 0;
+            for (int i = 0; i <= text.Length - 3; i++)
             {
-                Termination = new GenerationNumberTermination(500),
-                CrossoverProbability = 0.4f,
-                MutationProbability = 0.85f
-            };
+                string substr = text.Substring(i, 3);
 
-            ga.Start();
-
-            Console.WriteLine($"Key: {ga.BestChromosome}");
-
-            return ((SubstitutionChromosome)ga.BestChromosome).ToString();
-        }
-
-        public static void BreakPolySub(string text)
-        {
-            for (int i = 2; i < 6; i++)
-            {
-                Console.WriteLine($"finding n-gram diffs, n = {i}");
-                var trigramDistances = FrequencyAnalysis.GetNGramDistances(i, text);
-                foreach (var distance in trigramDistances.Take(5))
+                if (result.ContainsKey(substr))
                 {
-                    Console.WriteLine($"{distance.Key}: {string.Join(", ", distance.Value)}");
-                }
-                Console.WriteLine();
-            }
-            var keyLength = Utils.GetInt("key length", text.Length, 1);
-
-            var rows = text.Chunk(keyLength).ToArray();
-            var columns = Enumerable
-                .Range(0, keyLength)
-                .Select(i => rows.Select(row => row
-                        .ToCharArray()
-                        .ElementAt(i))
-                    .ToArray())
-                .Select(columnLetters => new string(columnLetters));
-
-            Console.WriteLine("Columns: ");
-            var keys = new List<string>();
-            // use genetic algorithm to every column
-            foreach (var column in columns)
-            {
-                Console.WriteLine(column);
-                var key = BreakMonoSum(column);
-                keys.Add(key);
-            }
-            Console.WriteLine();
-
-            (char plain, char cipher)[][] knownLetters =
-            {
-               new[] { ('C', 'U'), ('T', 'Z'), ('I', 'B'), ('B', 'E'), ('Y', 'X'), ('S', 'M'), ('R', 'L'), ('D', 'I'), ('L', 'O'), ('O', 'K'), ('N', 'F'), ('P', 'N'), ('E', 'J'), ('A', 'T'), ('H', 'P'), ('K', 'A'), ('W', 'Q'), ('Q', 'D'), ('G', 'S'), ('U', 'R'), ('M', 'H'), ('F', 'Y'), ('J', 'V') },
-               new[] { ('A', 'Y'), ('C', 'J'), ('T', 'K'), ('I', 'D'), ('S', 'O'), ('H', 'I'), ('E', 'E'), ('O', 'M'), ('N', 'T'), ('F', 'U'), ('D', 'B'), ('B', 'Q'), ('U', 'Z'), ('R', 'H'), ('G', 'N'), ('M', 'X'), ('L', 'L'), ('Y', 'V'), ('M', 'P'), ('W', 'A'), ('Z', 'C'), ('K', 'W'), ('P', 'R') },
-               new[] { ('P', 'X'), ('L', 'T'), ('A', 'O'), ('T', 'R'), ('L', 'T'), ('E', 'A'), ('N', 'U'), ('S', 'Y'), ('U', 'G'), ('B', 'Q'), ('O', 'I'), ('I', 'H'), ('D', 'P'), ('H', 'Z'), ('K', 'L'), ('Y', 'M'), ('R', 'D'), ('W', 'W'), ('G', 'K'), ('X', 'B'), ('F', 'S'), ('C', 'F'), ('M', 'J') },
-               new[] { ('I', 'C'), ('L', 'H'), ('P', 'E'), ('L', 'H'), ('A', 'L'), ('H', 'K'), ('G', 'P'), ('U', 'X'), ('O', 'U'), ('E', 'N'), ('N', 'A'), ('C', 'G'), ('S', 'Q'), ('R', 'S'), ('B', 'J'), ('T', 'Y'), ('W', 'Z'), ('X', 'V'), ('N', 'T'), ('Y', 'M'), ('J', 'B'), ('M', 'D'), ('D', 'O'), ('V', 'W'), ('F', 'R'), ('Z', 'I') }
-            };
-
-
-            for (int i = 0; i < keys.Count(); i++)
-            {
-                string key = keys[i];
-                string newKey = key;
-                for (int j = 0; j < knownLetters[i].Length; j++)
-                {
-                    (char plain, char cipher) knownLetter = knownLetters[i][j];
-                    newKey = newKey.ChangeKeyChar(knownLetter.plain, knownLetter.cipher);
-                }
-                keys[i] = newKey;
-            }
-
-            Console.WriteLine("\nKeys: ");
-            foreach (var key in keys)
-            {
-                Console.WriteLine(key);
-            }
-            Console.WriteLine();
-
-            var decipheredText = PolySubstitutionCipher.Decrypt(keys.ToArray(), text);
-
-            for (int i = 1; i <= decipheredText.Length; i++)
-            {
-                if ((i - 1) % 100 == 0)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine(text.Substring(i - 1, text.Substring(i - 1).Length >= 100 ? 100 : text.Substring(i - 1).Length % 100));
-                    Console.WriteLine(string.Concat(Enumerable.Repeat("1234", 25)));
-                }
-
-                char ch = text[i - 1];
-
-                bool firstAlphabet = i % 4 == 1 && knownLetters[0].Any(kl => kl.cipher == ch);
-
-                bool secondAlphabet = i % 4 == 2 && knownLetters[1].Any(kl => kl.cipher == ch);
-
-                bool thirdAlphabet = i % 4 == 3 && knownLetters[2].Any(kl => kl.cipher == ch);
-
-                bool fourthAlphabet = i % 4 == 0 && knownLetters[3].Any(kl => kl.cipher == ch);
-                
-                if (firstAlphabet || secondAlphabet || thirdAlphabet || fourthAlphabet)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write(decipheredText[i - 1]);
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    result[substr] += 1;
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(decipheredText[i - 1]);
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    result.Add(substr, 1);
                 }
+
+                counter = counter + 1;
             }
-            Console.WriteLine();
-            Console.WriteLine(decipheredText);
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                string substr = result.ElementAt(i).Key;
+                result[substr] = result[substr] / counter;
+            }
+
+            return result;
+        }
+
+        public static double GetFitness(char[] text, List<ExchangeRecord> key, Dictionary<string, double> ethalonNGramsFreqs)
+        {
+            char[] deciphered = ExchangeChars(text, key);
+            Dictionary<string, double> ethalonReduced = StringRecord.ReduceTrigrams(ethalonNGramsFreqs, deciphered);
+            Dictionary<string, double> textTrigrams = CountTextTrigrams(new string(deciphered));
+            //List<StringRecord> ethalonReduced = ethalonNGramsFreqs;
+            double result = 0;
+            foreach (var el in textTrigrams)
+            {
+                double ethalonTrigramFreq;
+                if (ethalonReduced.ContainsKey(el.Key))
+                {
+                    ethalonTrigramFreq = ethalonReduced[el.Key];
+                }
+                else
+                {
+                    ethalonTrigramFreq = 0;
+                }
+                result += textTrigrams[el.Key] - ethalonTrigramFreq;
+            }
+
+            /*
+            string lower = StringRecord.GetLowerString(deciphered);
+            Dictionary<string, double> counted = StringRecord.CountAllPercents(lower, ethalonReduced);
+            Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, ethalonReduced);
+            double result = StringRecord.GetCountSum(diffs);
+            */
+            return result;
+        }
+
+        public static Dictionary<List<ExchangeRecord>, double> GetSortedFitnesses(char[] text, List<List<ExchangeRecord>> keys, Dictionary<string, double> ethalonNGramsFreqs)
+        {
+            //counting
+            Dictionary<List<ExchangeRecord>, double> result = new Dictionary<List<ExchangeRecord>, double>();
+
+            foreach (var el in keys)
+            {
+                result.Add(el, GetFitness(text, el, ethalonNGramsFreqs));
+            }
+
+            //sorting
+            Dictionary<List<ExchangeRecord>, double> sorted = new Dictionary<List<ExchangeRecord>, double>();
+            while (result.Count > 0)
+            {
+                KeyValuePair<List<ExchangeRecord>, double> minEl = new KeyValuePair<List<ExchangeRecord>, double>(new List<ExchangeRecord>(), double.MaxValue);
+                foreach (var el in result)
+                {
+                    if (el.Value < minEl.Value)
+                    {
+                        minEl = el;
+                    }
+                }
+                sorted.Add(minEl.Key, minEl.Value);
+                result.Remove(minEl.Key);
+            }
+
+            return sorted;
+        }
+
+        public static List<List<ExchangeRecord>> CutOffRating(Dictionary<List<ExchangeRecord>, double> keys)
+        {
+            List<List<ExchangeRecord>> result = new List<List<ExchangeRecord>>();
+
+            foreach (var el in keys)
+            {
+                result.Add(el.Key);
+            }
+
+            return result;
+        }
+
+        public static List<List<ExchangeRecord>> CrossoverKeys(List<ExchangeRecord> firstParent, List<ExchangeRecord> secondParent, Random rnd)
+        {
+            List<List<ExchangeRecord>> children = new List<List<ExchangeRecord>>();
+            List<ExchangeRecord> firstChild = ExchangeRecord.GetEmptyKey(firstParent.Count);
+            List<ExchangeRecord> secondChild = ExchangeRecord.GetEmptyKey(firstParent.Count);
+
+            int endSectionIndex = rnd.Next(1, firstParent.Count + 1);
+            int startSectionIndex = rnd.Next(endSectionIndex);
+            int sectionLength = endSectionIndex - startSectionIndex;
+
+            for (int i = startSectionIndex; i < endSectionIndex; i++)
+            {
+                firstChild[i] = secondParent[i];
+                secondChild[i] = firstParent[i];
+            }
+
+            for (int i = 0; i < firstParent.Count; i++)
+            {
+                if (i == startSectionIndex)
+                {
+                    i += sectionLength;
+                    if (i >= firstParent.Count)
+                    {
+                        break;
+                    }
+                }
+                int j = i;
+                while (firstChild.Contains(firstParent[j]))
+                {
+                    j = firstChild.IndexOf(firstParent[j]);
+                }
+                firstChild[i] = firstParent[j];
+                j = i;
+                while (secondChild.Contains(secondParent[j]))
+                {
+                    j = secondChild.IndexOf(secondParent[j]);
+                }
+                secondChild[i] = secondParent[j];
+            }
+
+            children.Add(firstChild);
+            children.Add(secondChild);
+            return children;
+        }
+
+        //fitnesses - is what GetSortedFitnesses returns
+        public static int SelectSomeKeyRandomized(Dictionary<List<ExchangeRecord>, double> fitnesses, Random rnd)
+        {
+            //count total fitness
+            double populationFitness = 0;
+            //List<(double, List<ExchangeRecord>)> fitnesses = GetUnsortedFitnesses(text, keys, ethalonNGramsFreqs);
+            foreach (var el in fitnesses)
+            {
+                populationFitness += el.Value;
+            }
+
+            //select some random keys
+            double threshold = populationFitness * rnd.NextDouble();
+            double currentTotal = 0;
+            int counter = 0;
+            foreach (var el in fitnesses)
+            {
+                currentTotal += el.Value;
+                if (currentTotal >= threshold)
+                {
+                    return counter;
+                }
+                counter++;
+            }
+
+            return 0;
+        }
+
+        //fitnesses - is what GetSortedFitnesses returns
+        public static List<List<ExchangeRecord>> GenerateNewKeys(Dictionary<List<ExchangeRecord>, double> fitnesses)
+        {
+            List<List<ExchangeRecord>> sortedKeys = CutOffRating(fitnesses);
+            List<List<ExchangeRecord>> result = new List<List<ExchangeRecord>>(fitnesses.Count);
+            Random rnd = new Random();
+            int oldKeysVolume = sortedKeys.Count / 5;
+
+            for (int i = 0; i < oldKeysVolume; i++)
+            {
+                result.Add(sortedKeys[i]);
+            }
+
+            for (int i = oldKeysVolume; i < sortedKeys.Count; i += 2)
+            {
+                List<ExchangeRecord> firstParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
+                List<ExchangeRecord> secondParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
+
+                result.AddRange(CrossoverKeys(firstParent, secondParent, rnd));
+            }
+
+            return result;
+        }
+
+        public static string BreakExchangeByGenetic(char[] text, int nIterations, int populationSize, Dictionary<string, double> ethalonNGramsFreqs)
+        {
+            string result;
+            List<List<ExchangeRecord>> keys = new List<List<ExchangeRecord>>();
+            for (int i = 0; i < populationSize; i++)
+            {
+                keys.Add(ExchangeRecord.GenExchangeList(CharRecord.englLiteralsFreq));
+            }
+
+            Dictionary<List<ExchangeRecord>, double> keysRatedSorted = GetSortedFitnesses(text, keys, ethalonNGramsFreqs);
+
+            for (int i = 0; i < nIterations; i++)
+            {
+                keys = GenerateNewKeys(keysRatedSorted);
+                keysRatedSorted = GetSortedFitnesses(text, keys, ethalonNGramsFreqs);
+
+            }
+
+            string bestKey = ExchangeRecord.KeyToString(keysRatedSorted.First().Key);
+            string deciphered = new string(ExchangeChars(text, keysRatedSorted.First().Key));
+            ExchangeRecord.Show(keysRatedSorted.First().Key);
+
+            result = $"Best key: {bestKey} \nText: {deciphered}";
+
+            return result;
         }
     }
 }

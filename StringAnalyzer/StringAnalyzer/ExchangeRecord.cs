@@ -20,15 +20,21 @@ namespace CipherBreaker
         public static List<ExchangeRecord> GenExchangeList(List<CharRecord> alphabet)
         {
             Random rnd = new Random();
-            List<ExchangeRecord> result = new List<ExchangeRecord>();
-            for (int i = 0; i < alphabet.Count; i++)
-            {
-                result.Add(new ExchangeRecord(alphabet[i].Character, alphabet[i].Character));
-            }
+            List<ExchangeRecord> result = GetZeroExchangeList(alphabet);
             
             for (int i = 0; i < 200; i++)
             {
                 result = ChangeExchangeList(result, rnd);
+            }
+            return result;
+        }
+
+        public static List<ExchangeRecord> GetZeroExchangeList(List<CharRecord> alphabet)
+        {
+            List<ExchangeRecord> result = new List<ExchangeRecord>();
+            for (int i = 0; i < alphabet.Count; i++)
+            {
+                result.Add(new ExchangeRecord(alphabet[i].Character, alphabet[i].Character));
             }
             return result;
         }
@@ -43,6 +49,26 @@ namespace CipherBreaker
             result[aI].b = result[bI].b;
             result[bI].b = buffer;
 
+            return result;
+        }
+
+        public static List<ExchangeRecord> GetEmptyKey(int size)
+        {
+            List<ExchangeRecord> result = new List<ExchangeRecord>();
+            for(int i = 0; i < size; i++)
+            {
+                result.Add(new ExchangeRecord('-', '-'));
+            }
+            return result;
+        }
+
+        public static string KeyToString(List<ExchangeRecord> keys)
+        {
+            string result = "";
+            foreach(var el in keys)
+            {
+                result += el.b;
+            }
             return result;
         }
 
