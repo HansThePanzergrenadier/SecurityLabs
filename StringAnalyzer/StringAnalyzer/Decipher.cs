@@ -348,10 +348,10 @@ namespace CipherBreaker
 
         public static char[] BreakExchange(char[] input, List<CharRecord> alphabet, int retriesIfUseless)
         {
-            List<ExchangeRecord> key = ExchangeRecord.GenExchangeList(alphabet);
+            List<ExchangeRecord> key = ExchangeRecord.GetZeroExchangeList(alphabet);
             char[] text = new char[input.Length];
             input.CopyTo(text, 0);
-            double englishness = 100;
+            double englishness = double.MaxValue;
             int uselessExchangingCounter = retriesIfUseless;
             Random rnd = new Random();
             do
@@ -359,14 +359,18 @@ namespace CipherBreaker
                 List<ExchangeRecord> candidate = ExchangeRecord.ChangeExchangeList(key, rnd);
                 //double newEnglishness = CharRecord.GetBigramsPresence(new string(ExchangeChars(text, candidate)));
                 //double newEnglishness = StringRecord.GetPresence(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
-                Dictionary<string, double> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, candidate)), StringRecord.trigramFreqEngl);
-                Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, StringRecord.trigramFreqEngl);
-                double newEnglishness = StringRecord.GetCountSum(diffs);
+                char[] deciphered = ExchangeChars(text, candidate);
+                //Dictionary<string, double> reducedEthalon = StringRecord.ReduceTrigrams(StringRecord.trigramFreqEngl, text);
+                Dictionary<string, double> reducedEthalon = StringRecord.trigramFreqEngl;
+                //Dictionary<string, double> counted = StringRecord.CountAllPercents(StringRecord.GetLowerString(deciphered), reducedEthalon);
+                //Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, reducedEthalon);
+                //double newEnglishness = StringRecord.GetCountSum(diffs);
+                double newEnglishness = GetFitness(deciphered, candidate, reducedEthalon);
                 if (newEnglishness < englishness)
                 {
                     englishness = newEnglishness;
                     key = candidate;
-                    uselessExchangingCounter = retriesIfUseless;
+                    //uselessExchangingCounter = retriesIfUseless;
                 }
                 else if (newEnglishness == englishness)
                 {
@@ -376,7 +380,7 @@ namespace CipherBreaker
             } while (uselessExchangingCounter > 0);
 
             Console.WriteLine(englishness);
-            StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
+            //StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(ExchangeChars(text, key)), StringRecord.trigramFreqEngl));
             ExchangeRecord.Show(key);
             return ExchangeChars(text, key);
         }
@@ -423,6 +427,7 @@ namespace CipherBreaker
             foreach (var el in textTrigrams)
             {
                 double ethalonTrigramFreq;
+                /*
                 if (ethalonReduced.ContainsKey(el.Key))
                 {
                     ethalonTrigramFreq = ethalonReduced[el.Key];
@@ -431,6 +436,8 @@ namespace CipherBreaker
                 {
                     ethalonTrigramFreq = 0;
                 }
+                */
+                ethalonTrigramFreq = ethalonReduced.ContainsKey(el.Key) ? ethalonReduced[el.Key] : 0;
                 result += textTrigrams[el.Key] - ethalonTrigramFreq;
             }
 

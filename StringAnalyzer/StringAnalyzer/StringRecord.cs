@@ -14,6 +14,7 @@ namespace CipherBreaker
         public double count;
 
         public static string filename = "D://Folya//docs//homeworks//7 sem//security//trigrams.txt";
+        public static string filenameWrite = "D://Folya//docs//homeworks//7 sem//security//trigramsReduced.txt";
 
         public StringRecord(string gramm, double count)
         {
@@ -46,7 +47,7 @@ namespace CipherBreaker
             new StringRecord("tio", 1.25)
         };
         */
-        public static Dictionary<string, double> trigramFreqEngl = FromShort();
+        //public static Dictionary<string, double> trigramFreqEngl = FromShort();
         static Dictionary<string, double> FromShort()
         {
             Dictionary<string, double> result = new Dictionary<string, double>();
@@ -93,7 +94,7 @@ namespace CipherBreaker
         };
 
 
-        //public static Dictionary<string, double> trigramFreqEngl = readFromFile();
+        public static Dictionary<string, double> trigramFreqEngl = readFromFile();
         static Dictionary<string, double> readFromFile()
         {
             StreamReader reader = new StreamReader(filename);
@@ -125,6 +126,47 @@ namespace CipherBreaker
             }
 
             return result;
+        }
+
+        public static Dictionary<string, double> ReduceTrigramsLeastValuable(Dictionary<string, double> trigrams, int volume)
+        {
+            Dictionary<string, double> sorted = new Dictionary<string, double>();
+            Dictionary<string, double> trigs = new Dictionary<string, double>(trigrams);
+
+            while(trigs.Count > 0)
+            {
+                KeyValuePair<string, double> max = new KeyValuePair<string, double>(" ", double.MinValue);
+                foreach(var el in trigs)
+                {
+                    if(el.Value > max.Value)
+                    {
+                        max = el;
+                    }
+                }
+                sorted.Add(max.Key, max.Value);
+                trigs.Remove(max.Key);
+            }
+
+            Dictionary<string, double> result = new Dictionary<string, double>();
+            for(int i = 0; i < volume; i++)
+            {
+                KeyValuePair<string, double> key = sorted.ElementAt(i);
+                result.Add(key.Key, key.Value);
+            }
+
+            return result;
+        }
+
+        public static void SaveToFile(Dictionary<string, double> trigrams)
+        {
+            StreamWriter writer = new StreamWriter(filenameWrite);
+            
+            foreach(var el in trigrams)
+            {
+                string line = $"{el.Key} {el.Value:0.############E-0}";
+                writer.WriteLine(line);
+            }
+            writer.Close();
         }
 
         public static void PrintList(Dictionary<string, double> records)
