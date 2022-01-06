@@ -17,11 +17,22 @@ namespace CipherBreaker
             this.b = b;
         }
 
+        public static List<ExchangeRecord> KeyFromString(string key)
+        {
+            List<ExchangeRecord> result = GetZeroExchangeList(CharRecord.englLiteralsFreq);
+            key = key.ToLower();
+            for (int i = 0; i < key.Length; i++)
+            {
+                result[i].b = key[i];
+            }
+            return result;
+        }
+
         public static List<ExchangeRecord> GenExchangeList(List<CharRecord> alphabet)
         {
             Random rnd = new Random();
             List<ExchangeRecord> result = GetZeroExchangeList(alphabet);
-            
+
             for (int i = 0; i < 200; i++)
             {
                 result = ChangeExchangeList(result, rnd);
@@ -55,9 +66,9 @@ namespace CipherBreaker
         public static List<ExchangeRecord> GetEmptyKey(int size)
         {
             List<ExchangeRecord> result = new List<ExchangeRecord>();
-            for(int i = 0; i < size; i++)
+            for (int i = 0; i < size; i++)
             {
-                result.Add(new ExchangeRecord('-', '-'));
+                result.Add(new ExchangeRecord(StringRecord.alphabet[i][0], '-'));
             }
             return result;
         }
@@ -65,7 +76,7 @@ namespace CipherBreaker
         public static string KeyToString(List<ExchangeRecord> keys)
         {
             string result = "";
-            foreach(var el in keys)
+            foreach (var el in keys)
             {
                 result += el.b;
             }
@@ -74,7 +85,7 @@ namespace CipherBreaker
 
         public static void Show(List<ExchangeRecord> recs)
         {
-            foreach(var el in recs)
+            foreach (var el in recs)
             {
                 Console.WriteLine($"{el.a} - {el.b}");
             }

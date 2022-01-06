@@ -332,17 +332,20 @@ namespace CipherBreaker
         public static char[] ExchangeChars(char[] text, List<ExchangeRecord> key)
         {
             char[] result = new char[text.Length];
-            text.CopyTo(result, 0);
-            for (int i = 0; i < key.Count; i++)
+            //text.CopyTo(result, 0);
+
+            for (int j = 0; j < text.Length; j++)
             {
-                for (int j = 0; j < result.Length; j++)
+                char el = text[j];
+                for (int i = 0; i < key.Count; i++)
                 {
-                    if (key[i].a.Equals(result[j]))
+                    if(el == key[i].a)
                     {
                         result[j] = key[i].b;
                     }
                 }
             }
+
             return result;
         }
 
@@ -410,7 +413,7 @@ namespace CipherBreaker
             for (int i = 0; i < result.Count; i++)
             {
                 string substr = result.ElementAt(i).Key;
-                result[substr] = result[substr] / counter;
+                result[substr] = (result[substr] / counter) * 100;
             }
 
             return result;
@@ -419,6 +422,7 @@ namespace CipherBreaker
         public static double GetFitness(char[] text, List<ExchangeRecord> key, Dictionary<string, double> ethalonNGramsFreqs)
         {
             char[] deciphered = ExchangeChars(text, key);
+            //char[] deciphered = text;
             //Dictionary<string, double> ethalonReduced = StringRecord.ReduceTrigrams(ethalonNGramsFreqs, deciphered);
             Dictionary<string, double> textTrigrams = CountTextTrigrams(new string(deciphered));
             Dictionary<string, double> ethalonReduced = ethalonNGramsFreqs;
@@ -426,7 +430,7 @@ namespace CipherBreaker
             foreach (var el in textTrigrams)
             {
                 double ethalonTrigramFreq;
-                /*
+                
                 if (ethalonReduced.ContainsKey(el.Key))
                 {
                     ethalonTrigramFreq = ethalonReduced[el.Key];
@@ -435,17 +439,11 @@ namespace CipherBreaker
                 {
                     ethalonTrigramFreq = 0;
                 }
-                */
-                ethalonTrigramFreq = ethalonReduced.ContainsKey(el.Key) ? ethalonReduced[el.Key] : 0;
+                
+                //ethalonTrigramFreq = ethalonReduced.ContainsKey(el.Key) ? ethalonReduced[el.Key] : 0;
                 result += Math.Abs(textTrigrams[el.Key] - ethalonTrigramFreq);
             }
 
-            /*
-            string lower = StringRecord.GetLowerString(deciphered);
-            Dictionary<string, double> counted = StringRecord.CountAllPercents(lower, ethalonReduced);
-            Dictionary<string, double> diffs = StringRecord.GetDiffs(counted, ethalonReduced);
-            double result = StringRecord.GetCountSum(diffs);
-            */
             return result;
         }
 
@@ -502,8 +500,8 @@ namespace CipherBreaker
 
             for (int i = startSectionIndex; i < endSectionIndex; i++)
             {
-                firstChild[i] = secondParent[i];
-                secondChild[i] = firstParent[i];
+                firstChild[i].b = secondParent[i].b;
+                secondChild[i].b = firstParent[i].b;
             }
 
             for (int i = 0; i < firstParent.Count; i++)
@@ -516,23 +514,53 @@ namespace CipherBreaker
                         break;
                     }
                 }
+                
                 int j = i;
-                while (firstChild.Contains(firstParent[j]))
+                while (IsContains(firstChild, firstParent[j]))
                 {
-                    j = firstChild.IndexOf(firstParent[j]);
+                    j = GetIndexOf(firstChild, firstParent[j]);
                 }
-                firstChild[i] = firstParent[j];
+                firstChild[i].b = firstParent[j].b;
+                
                 j = i;
-                while (secondChild.Contains(secondParent[j]))
+                while (IsContains(secondChild, secondParent[j]))
                 {
-                    j = secondChild.IndexOf(secondParent[j]);
+                    j = GetIndexOf(secondChild, secondParent[j]);
                 }
-                secondChild[i] = secondParent[j];
+                secondChild[i].b = secondParent[j].b;
             }
 
             children.Add(firstChild);
             children.Add(secondChild);
             return children;
+        }
+
+        public static bool IsContains(List<ExchangeRecord> container, ExchangeRecord item)
+        {
+            bool result = false;
+            foreach(var el in container)
+            {
+                if(el.b == item.b)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        public static int GetIndexOf(List<ExchangeRecord> container, ExchangeRecord item)
+        {
+            int result = 0;
+            for(int i = 0; i < container.Count; i++)
+            {
+                if(container[i].b == item.b)
+                {
+                    result = i;
+                    break;
+                }
+            }
+            return result;
         }
 
         //fitnesses - is what GetSortedFitnesses returns
@@ -570,13 +598,21 @@ namespace CipherBreaker
             List<List<ExchangeRecord>> result = new List<List<ExchangeRecord>>(fitnesses.Count);
             Random rnd = new Random();
             int oldKeysVolume = sortedKeys.Count / 5;
+            //int randomKeysVolume = sortedKeys.Count / 5;
+            int randomKeysVolume = 0;
+            int crossoverStart = oldKeysVolume + randomKeysVolume;
 
             for (int i = 0; i < oldKeysVolume; i++)
             {
                 result.Add(sortedKeys[i]);
             }
-
-            for (int i = oldKeysVolume; i < sortedKeys.Count; i += 2)
+            /*
+            for(int i = oldKeysVolume; i < oldKeysVolume + randomKeysVolume; i++)
+            {
+                result.Add(ExchangeRecord.GenExchangeList(CharRecord.englLiteralsFreq));
+            }
+            */
+            for (int i = crossoverStart; i < sortedKeys.Count; i += 2)
             {
                 List<ExchangeRecord> firstParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
                 List<ExchangeRecord> secondParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
@@ -609,7 +645,7 @@ namespace CipherBreaker
             string deciphered = new string(ExchangeChars(text, keysRatedSorted.First().Key));
             ExchangeRecord.Show(keysRatedSorted.First().Key);
 
-            result = $"Best key: {bestKey} \nText: {deciphered}";
+            result = $"Best key: {bestKey} \nText: {deciphered}\nEnglishness: {keysRatedSorted.First().Value}";
 
             return result;
         }
