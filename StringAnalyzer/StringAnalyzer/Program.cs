@@ -173,15 +173,17 @@ namespace CipherBreaker
                 }
                 */
 
-                //Console.WriteLine(Decipher.BreakExchange(StringRecord.GetLowerString(input).ToCharArray(), CharRecord.englLiteralsFreq, 500000));
+                Console.WriteLine(Decipher.BreakExchangeByGenetic(StringRecord.GetLowerString(input).ToCharArray(), 100, 1000, StringRecord.trigramFreqEngl));
+
+
+                //debug or work-in-progress code
+                //Console.WriteLine(Decipher.BreakExchange(StringRecord.GetLowerString(input).ToCharArray(), CharRecord.englLiteralsFreq, 1000000));
 
                 //CharRecord.DrawGraphicsWithExample(CharRecord.Normalize(CharRecord.CountRecords(input)));
-                Console.WriteLine(Decipher.BreakExchangeByGenetic(StringRecord.GetLowerString(input).ToCharArray(), 100, 1000, StringRecord.trigramFreqEngl));
+
                 //StringRecord.PrintList(StringRecord.CountAllPercents(StringRecord.GetLowerString(input), StringRecord.trigramFreqEngl));
 
                 //StringRecord.SaveToFile(StringRecord.ReduceTrigramsLeastValuable(StringRecord.trigramFreqEngl, 1000));
-                //Console.WriteLine(Decipher.GetFitness(StringRecord.GetLowerString(input).ToCharArray(), ExchangeRecord.KeyFromString("EKMFLGDQZVNROWYTXUSPAJBHCI"), StringRecord.trigramFreqEngl));
-                //Console.WriteLine(Decipher.ExchangeChars(StringRecord.GetLowerString(input).ToCharArray(), ExchangeRecord.KeyFromString("EKMFLGDQZVNROWYTXUSPAJBHCI")));
             }
 
             Console.ReadKey();

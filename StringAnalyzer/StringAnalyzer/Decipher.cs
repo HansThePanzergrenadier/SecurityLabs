@@ -439,8 +439,6 @@ namespace CipherBreaker
                 {
                     ethalonTrigramFreq = 0;
                 }
-                
-                //ethalonTrigramFreq = ethalonReduced.ContainsKey(el.Key) ? ethalonReduced[el.Key] : 0;
                 result += Math.Abs(textTrigrams[el.Key] - ethalonTrigramFreq);
             }
 
@@ -568,7 +566,6 @@ namespace CipherBreaker
         {
             //count total fitness
             double populationFitness = 0;
-            //List<(double, List<ExchangeRecord>)> fitnesses = GetUnsortedFitnesses(text, keys, ethalonNGramsFreqs);
             foreach (var el in fitnesses)
             {
                 populationFitness += el.Value;
@@ -597,6 +594,7 @@ namespace CipherBreaker
             List<List<ExchangeRecord>> sortedKeys = CutOffRating(fitnesses);
             List<List<ExchangeRecord>> result = new List<List<ExchangeRecord>>(fitnesses.Count);
             Random rnd = new Random();
+            int maxMutationsRate = sortedKeys.Count / 10;
             int oldKeysVolume = sortedKeys.Count / 5;
             //int randomKeysVolume = sortedKeys.Count / 5;
             int randomKeysVolume = 0;
@@ -612,12 +610,19 @@ namespace CipherBreaker
                 result.Add(ExchangeRecord.GenExchangeList(CharRecord.englLiteralsFreq));
             }
             */
+
             for (int i = crossoverStart; i < sortedKeys.Count; i += 2)
             {
                 List<ExchangeRecord> firstParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
                 List<ExchangeRecord> secondParent = sortedKeys[SelectSomeKeyRandomized(fitnesses, rnd)];
 
                 result.AddRange(CrossoverKeys(firstParent, secondParent, rnd));
+            }
+
+            for(int i = 0; i < maxMutationsRate; i++)
+            {
+                int index = rnd.Next(result.Count);
+                result[index] = ExchangeRecord.ChangeExchangeList(result[index], rnd);
             }
 
             return result;
