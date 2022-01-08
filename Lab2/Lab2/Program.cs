@@ -18,15 +18,71 @@ namespace Lab2
                 text.Add(reader.ReadLine());
             }
 
-            List<byte[]> lines = new List<byte[]>(text.Count);
-            for (int i = 0; i < text.Count; i++)
-            {
-                lines.Add(XSalsa20Breaker.HexStringToByteArray(text[i]));
-            }
-            //string word = "For who would bear the whips and scorns of time,";
-            string word = "Then";
-
-            XSalsa20Breaker.ProceedAnalisys(lines, word);
+            DisplayTexts(XorEachOther(text));
+            
         }
+
+        static void DisplayTexts(List<List<string>> texts)
+        {
+            for (int i = 0; i < texts.Count; i++)
+            {
+                Console.WriteLine($"Line {i}:");
+                for (int j = 0; j < texts[i].Count; j++)
+                {
+                    Console.WriteLine($"{j}: {texts[i][j]}");
+                }
+                Console.WriteLine("");
+            }
+        }
+
+        static string XorLine(string longer, string shorter)
+        {
+            string result = "";
+            
+            for(int i = 0, j = 0; i < longer.Length; i++)
+            {
+                result += (char)(longer[i] ^ shorter[j]);
+                j++;
+                if (j >= shorter.Length)
+                {
+                    j = 0;
+                }
+            }
+
+            return result;
+        }
+
+        static List<string> XorOneAndAll(string line, List<string> cipherLines)
+        {
+            List<string> result = new List<string>();
+
+            foreach(var el in cipherLines)
+            {
+                if(line.Length > el.Length)
+                {
+                    result.Add(XorLine(line, el));
+                }
+                else
+                {
+                    result.Add(XorLine(el, line));
+                }
+            }
+
+            return result;
+        }
+
+        static List<List<string>> XorEachOther(List<string> cipherLines)
+        {
+            List<List<string>> result = new List<List<string>>();
+
+            foreach (var el in cipherLines)
+            {
+                result.Add(XorOneAndAll(el, cipherLines));
+            }
+
+            return result;
+        }
+
+        
     }
 }
