@@ -6,7 +6,7 @@ namespace Lab2
 {
     class Program
     {
-        
+
         static void Main(string[] args)
         {
             List<string> text = new List<string>();
@@ -18,8 +18,8 @@ namespace Lab2
                 text.Add(reader.ReadLine());
             }
 
-            DisplayTexts(XorEachOther(text));
-            
+            List<List<string>> results = XorEachOther(text);
+            DisplayTexts(XorEveryLineWithKey("The", results));
         }
 
         static void DisplayTexts(List<List<string>> texts)
@@ -38,8 +38,8 @@ namespace Lab2
         static string XorLine(string longer, string shorter)
         {
             string result = "";
-            
-            for(int i = 0, j = 0; i < longer.Length; i++)
+
+            for (int i = 0, j = 0; i < longer.Length; i++)
             {
                 result += (char)(longer[i] ^ shorter[j]);
                 j++;
@@ -56,9 +56,9 @@ namespace Lab2
         {
             List<string> result = new List<string>();
 
-            foreach(var el in cipherLines)
+            foreach (var el in cipherLines)
             {
-                if(line.Length > el.Length)
+                if (line.Length > el.Length)
                 {
                     result.Add(XorLine(line, el));
                 }
@@ -83,6 +83,39 @@ namespace Lab2
             return result;
         }
 
-        
+        static double GetEnglishness(List<string> text)
+        {
+            int totalNChars = 0;
+            foreach (var el in text)
+            {
+                totalNChars += el.Length;
+            }
+
+            int readableNChars = 0;
+            foreach (var stringEl in text)
+            {
+                foreach (var charEl in stringEl)
+                {
+                    if (char.IsLetter(charEl) || char.IsPunctuation(charEl))
+                    {
+                        readableNChars++;
+                    }
+                }
+            }
+
+            return (((double)readableNChars) / totalNChars) * 100;
+        }
+
+        static List<List<string>> XorEveryLineWithKey(string key, List<List<string>> results)
+        {
+            List<List<string>> result = new List<List<string>>();
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                result.Add(XorOneAndAll(key, results[i]));
+            }
+
+            return result;
+        }
     }
 }
