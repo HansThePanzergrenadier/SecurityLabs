@@ -21,9 +21,9 @@ namespace Lab2
 
             List<byte[]> converted = ConvertFromHex(text);
             List<List<byte[]>> results = XorEachOther(converted);
-            byte[] key = Encoding.UTF8.GetBytes("When ");
-            DisplayTexts(XorEveryLineWithKey(key, results));
-
+            byte[] key = Encoding.UTF8.GetBytes("The undiscovered");
+            List<List<byte[]>> keyed = XorEveryLineWithKey(key, results);
+            DisplayTexts(keyed);
         }
 
         static void DisplayTexts(List<List<byte[]>> texts)
@@ -84,29 +84,6 @@ namespace Lab2
             }
 
             return result;
-        }
-
-        static double GetEnglishness(List<byte[]> text)
-        {
-            int totalNChars = 0;
-            foreach (var el in text)
-            {
-                totalNChars += el.Length;
-            }
-
-            int readableNChars = 0;
-            foreach (var stringEl in text)
-            {
-                foreach (var charEl in stringEl)
-                {
-                    if (char.IsLetter(((char)charEl)) || char.IsPunctuation((char)charEl))
-                    {
-                        readableNChars++;
-                    }
-                }
-            }
-
-            return (((double)readableNChars) / totalNChars) * 100;
         }
 
         static List<byte[]> XorOneKeyAndLines(byte[] key, List<byte[]> cipherLines)
