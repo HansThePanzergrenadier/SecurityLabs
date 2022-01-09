@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Lab2
 {
@@ -18,30 +19,34 @@ namespace Lab2
                 text.Add(reader.ReadLine());
             }
 
-            List<List<string>> results = XorEachOther(text);
-            DisplayTexts(XorEveryLineWithKey("The", results));
+            List<byte[]> converted = ConvertFromHex(text);
+            List<List<byte[]>> results = XorEachOther(converted);
+            byte[] key = Encoding.UTF8.GetBytes("When ");
+            DisplayTexts(XorEveryLineWithKey(key, results));
+
         }
 
-        static void DisplayTexts(List<List<string>> texts)
+        static void DisplayTexts(List<List<byte[]>> texts)
         {
             for (int i = 0; i < texts.Count; i++)
             {
                 Console.WriteLine($"Line {i}:");
                 for (int j = 0; j < texts[i].Count; j++)
                 {
-                    Console.WriteLine($"{j}: {texts[i][j]}");
+                    string line = Encoding.UTF8.GetString(texts[i][j]);
+                    Console.WriteLine($"{j}: {line}");
                 }
                 Console.WriteLine("");
             }
         }
 
-        static string XorLine(string longer, string shorter)
+        static byte[] XorLine(byte[] longer, byte[] shorter)
         {
-            string result = "";
+            byte[] result = new byte[longer.Length];
 
             for (int i = 0, j = 0; i < longer.Length; i++)
             {
-                result += (char)(longer[i] ^ shorter[j]);
+                result[i] = (byte)(longer[i] ^ shorter[j]);
                 j++;
                 if (j >= shorter.Length)
                 {
@@ -52,28 +57,26 @@ namespace Lab2
             return result;
         }
 
-        static List<string> XorOneAndAll(string line, List<string> cipherLines)
+        static List<byte[]> XorOneAndAll(byte[] line, List<byte[]> cipherLines)
         {
-            List<string> result = new List<string>();
+            List<byte[]> result = new List<byte[]>();
 
             foreach (var el in cipherLines)
             {
-                if (line.Length > el.Length)
-                {
-                    result.Add(XorLine(line, el));
-                }
-                else
-                {
-                    result.Add(XorLine(el, line));
-                }
+                int lineLength = Math.Min(el.Length, line.Length);
+                byte[] lineCut = new byte[lineLength];
+                byte[] elCut = new byte[lineLength];
+                Array.Copy(line, lineCut, lineLength);
+                Array.Copy(el, elCut, lineLength);
+                result.Add(XorLine(lineCut, elCut));
             }
 
             return result;
         }
 
-        static List<List<string>> XorEachOther(List<string> cipherLines)
+        static List<List<byte[]>> XorEachOther(List<byte[]> cipherLines)
         {
-            List<List<string>> result = new List<List<string>>();
+            List<List<byte[]>> result = new List<List<byte[]>>();
 
             foreach (var el in cipherLines)
             {
@@ -83,7 +86,7 @@ namespace Lab2
             return result;
         }
 
-        static double GetEnglishness(List<string> text)
+        static double GetEnglishness(List<byte[]> text)
         {
             int totalNChars = 0;
             foreach (var el in text)
@@ -96,7 +99,7 @@ namespace Lab2
             {
                 foreach (var charEl in stringEl)
                 {
-                    if (char.IsLetter(charEl) || char.IsPunctuation(charEl))
+                    if (char.IsLetter(((char)charEl)) || char.IsPunctuation((char)charEl))
                     {
                         readableNChars++;
                     }
@@ -106,13 +109,42 @@ namespace Lab2
             return (((double)readableNChars) / totalNChars) * 100;
         }
 
-        static List<List<string>> XorEveryLineWithKey(string key, List<List<string>> results)
+        static List<byte[]> XorOneKeyAndLines(byte[] key, List<byte[]> cipherLines)
         {
-            List<List<string>> result = new List<List<string>>();
+            List<byte[]> result = new List<byte[]>();
+
+            foreach (var el in cipherLines)
+            {
+                result.Add(XorLine(el, key));
+            }
+
+            return result;
+        }
+
+        static List<List<byte[]>> XorEveryLineWithKey(byte[] key, List<List<byte[]>> results)
+        {
+            List<List<byte[]>> result = new List<List<byte[]>>();
 
             for (int i = 0; i < results.Count; i++)
             {
-                result.Add(XorOneAndAll(key, results[i]));
+                result.Add(XorOneKeyAndLines(key, results[i]));
+            }
+
+            return result;
+        }
+
+        static List<byte[]> ConvertFromHex(List<string> hexLines)
+        {
+            List<byte[]> result = new List<byte[]>();
+
+            foreach (var el in hexLines)
+            {
+                byte[] newLine = new byte[el.Length / 2];
+                for (int i = 0, j = 0; i < el.Length; i += 2, j++)
+                {
+                    newLine[j] = Convert.ToByte(string.Concat(el[i], el[i + 1]), 16);
+                }
+                result.Add(newLine);
             }
 
             return result;
