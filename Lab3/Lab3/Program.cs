@@ -15,12 +15,16 @@ namespace Lab3
         public static void Main()
         {
             string linkBase = "http://95.217.177.249/casino/";
+            
+            Account testAcc = CreateAcc(linkBase);
+            Console.WriteLine($"id: {testAcc.ID}");
+            Console.WriteLine($"money: {testAcc.Money}");
+            Console.WriteLine($"deletionTime: {testAcc.DeletionTime}");
 
-            Account test = CreateNewAcc(linkBase);
-
-            Console.WriteLine($"id: {test.ID}");
-            Console.WriteLine($"money: {test.Money}");
-            Console.WriteLine($"deletionTime: {test.DeletionTime}");
+            BetResponse test = CreateBet(linkBase, "Lcg", testAcc.ID, 10, 500);
+            Console.WriteLine($"message: {test.Message}");
+            Console.WriteLine($"accID: {test.Account.ID}");
+            Console.WriteLine($"realNumber: { test.RealNumber}");
         }
 
         static string SendRequestGetResponse(string request)
@@ -37,7 +41,7 @@ namespace Lab3
             return recieved;
         }
 
-        static Account CreateNewAcc(string uriBase)
+        static Account CreateAcc(string uriBase)
         {
             Account result = null;
             Random rnd = new Random();
@@ -49,9 +53,9 @@ namespace Lab3
             {
                 try
                 {
-                    ID = rnd.Next(10000);
+                    ID = rnd.Next(1488);
                     request = uriBase + "createacc?id=" + ID.ToString();
-                    string responseJson = SendRequestGetResponse(uriBase);
+                    string responseJson = SendRequestGetResponse(request);
 
                     result = JsonConvert.DeserializeObject<Account>(responseJson);
 
@@ -62,6 +66,20 @@ namespace Lab3
                     succsessFlag = false;
                 }
             } while (!succsessFlag);
+
+            return result;
+        }
+
+        static BetResponse CreateBet(string uriBase, string mode, string playerID, int betAmount, int betNumber)
+        {
+            BetResponse result = null;
+            string request = $"{uriBase}play{mode}?id={playerID}&bet={betAmount}&number={betNumber}";
+
+            while(result == null)
+            {
+                string response = SendRequestGetResponse(request);
+                result = JsonConvert.DeserializeObject<BetResponse>(response);
+            }
 
             return result;
         }
