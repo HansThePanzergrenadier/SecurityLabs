@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "tR7MM0tDHTm3CUKyAE50wyXMOD+UXVMs7soz+7fUDSRL6bSqw0e29NIpsQNxabh8n0rnXS2zRVOHkAmP7QHYEw==",
+  "dgSpecHash": "bVw+l9dp3i+YP8p6d9y5OuoYafuOGed4fJA8gLCHJAUDe7rxD63zr628j7dWK0huZ45Vlb9YruFtrrYkdk/Glw==",
   "success": true,
   "projectFilePath": "D:\\Folya\\docs\\homeworks\\7 sem\\security\\secLabs\\Lab3\\Lab3\\Lab3.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Dima\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
   "logs": []
 }

@@ -21,7 +21,7 @@ namespace Lab2
 
             List<byte[]> converted = ConvertFromHex(text);
             List<List<byte[]>> results = XorEachOther(converted);
-            byte[] key = Encoding.UTF8.GetBytes("The undiscovered");
+            byte[] key = Encoding.UTF8.GetBytes("The undiscovered ");
             List<List<byte[]>> keyed = XorEveryLineWithKey(key, results);
             DisplayTexts(keyed);
         }

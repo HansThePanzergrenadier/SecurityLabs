@@ -14,3 +14,5 @@ D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\obj\Debug\net5.0\Lab3.d
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\obj\Debug\net5.0\ref\Lab3.dll
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\obj\Debug\net5.0\Lab3.pdb
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\obj\Debug\net5.0\Lab3.genruntimeconfig.cache
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\bin\Debug\net5.0\Newtonsoft.Json.dll
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab3\Lab3\obj\Debug\net5.0\Lab3.csproj.CopyComplete

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,142 +12,58 @@ namespace Lab3
 {
     class Program
     {
-        enum Mode
+        public static void Main()
         {
-            Lcg,
-            Mt,
-            BetterMt
+            string linkBase = "http://95.217.177.249/casino/";
+
+            Account test = CreateNewAcc(linkBase);
+
+            Console.WriteLine($"id: {test.ID}");
+            Console.WriteLine($"money: {test.Money}");
+            Console.WriteLine($"deletionTime: {test.DeletionTime}");
         }
 
-        public static async Task Main()
+        static string SendRequestGetResponse(string request)
         {
-            var accountId = await CreateAccount();
-            var mode = (Mode)Utils.GetInt("mode (0 = LCG, 1 = MT, 2 = MT with strong seed)", 2, 0);
+            WebRequest webReq = WebRequest.Create(request);
+            webReq.Method = "GET";
 
-            var numberOfValues = mode switch
-            {
-                Mode.Lcg => 3,
-                Mode.Mt => 1,
-                Mode.BetterMt => 624,
-                _ => 1
-            };
+            using WebResponse webResp = webReq.GetResponse();
+            using Stream webStream = webResp.GetResponseStream();
 
-            var values = mode switch
-            {
-                Mode.Lcg => await GetCorrectLcgValues(numberOfValues, accountId, mode),
-                Mode.Mt => await GetCorrectMtValues(numberOfValues, accountId, mode),
-                Mode.BetterMt => await GetCorrectMtValues(numberOfValues, accountId, mode),
-                _ => default
-            };
+            using StreamReader reader = new StreamReader(webStream);
+            string recieved = reader.ReadToEnd();
 
-            long predictedValue = mode switch
-            {
-                Mode.Lcg => LcgRandom.Predict(values),
-                Mode.Mt => MtRandom.BruteforceSeed(values.First()),
-                Mode.BetterMt => MtRandom.PredictHardSeededMt(values),
-                _ => 42
-            };
-
-            Console.WriteLine($"Predicted next value: {predictedValue}");
-            var response = await TryValue(predictedValue, accountId, mode);
-            if (response.RealNumber == predictedValue)
-            {
-                Console.WriteLine("Cracked successfully!");
-                Console.WriteLine(response.Message);
-            }
-            else
-            {
-                Console.WriteLine("Failed to crack :(");
-            }
-
-            Console.ReadKey();
+            return recieved;
         }
 
-        private static async Task<long[]> GetCorrectLcgValues(int numberOfValues, string accountId, Mode mode)
+        static Account CreateNewAcc(string uriBase)
         {
-            var values = new long[numberOfValues];
-            long helper;
+            Account result = null;
+            Random rnd = new Random();
+            int ID = 0;
+            string request;
 
+            bool succsessFlag = true;
             do
             {
-                for (int i = 0; i < numberOfValues; i++)
+                try
                 {
-                    var value = await GetValue(accountId, mode);
-                    Console.WriteLine(value);
-                    values[i] = value;
+                    ID = rnd.Next(10000);
+                    request = uriBase + "createacc?id=" + ID.ToString();
+                    string responseJson = SendRequestGetResponse(uriBase);
+
+                    result = JsonConvert.DeserializeObject<Account>(responseJson);
+
+                    succsessFlag = true;
                 }
-
-            } while (!LcgRandom.TryModulusInverse(values[0] - values[1], (long)Math.Pow(2, 32), out helper));
-
-            return values;
-        }
-
-        private static async Task<long[]> GetCorrectMtValues(int numberOfValues, string accountId, Mode mode)
-        {
-            var values = new long[numberOfValues];
-
-            for (int i = 0; i < numberOfValues; i++)
-            {
-                var value = await GetValue(accountId, mode);
-                Console.WriteLine(value);
-                values[i] = value;
-            }
-
-            return values;
-        }
-
-        private static async Task<long> GetValue(string accountId, Mode mode)
-        {
-            var response = await TryValue(1, accountId, mode);
-            return response.RealNumber;
-        }
-
-        /// <summary>
-        /// Tries to create account
-        /// </summary>
-        /// <returns>Account id</returns>
-        private static async Task<string> CreateAccount()
-        {
-            var id = Guid.NewGuid();
-            while (true)
-            {
-                var url = $"http://95.217.177.249/casino/createacc?id={id}";
-                var client = new HttpClient();
-                var response = await client.GetAsync(url);
-
-                if (response.IsSuccessStatusCode)
+                catch (System.Net.WebException)
                 {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    var account = JsonSerializer.Deserialize<Account>(responseString);
-                    Console.WriteLine($"Created account with id = {account.Id}");
-                    return account.Id;
+                    succsessFlag = false;
                 }
+            } while (!succsessFlag);
 
-                Console.WriteLine($"Account {id} already exists, retrying");
-                id = Guid.NewGuid();
-            }
+            return result;
         }
-
-        private static async Task<CasinoResponse> TryValue(long value, string accountId, Mode mode)
-        {
-            var builder = new UriBuilder($"http://95.217.177.249/casino/play{mode}/");
-            builder.Port = -1;
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["id"] = accountId.ToString();
-            query["bet"] = "1";
-            query["number"] = value.ToString();
-
-            builder.Query = query.ToString();
-            var client = new HttpClient();
-            client.BaseAddress = builder.Uri;
-
-            var response = await client.GetAsync("");
-            response.EnsureSuccessStatusCode();
-            var reponseString = await response.Content.ReadAsStringAsync();
-            var casinoResponse = JsonSerializer.Deserialize<CasinoResponse>(reponseString);
-
-            return casinoResponse;
-        }
-
     }
 }

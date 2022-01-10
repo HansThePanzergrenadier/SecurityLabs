@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace Lab3
 {
-    class CasinoResponse
+    class BetResponse
     {
         [JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string Message;
+
         [JsonPropertyName("account")]
-        public Account Account { get; set; }
+        public Account Account;
+
         [JsonPropertyName("realNumber")]
-        public long RealNumber { get; set; }
+        public long RealNumber;
     }
 }
