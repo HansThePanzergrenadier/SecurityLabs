@@ -18,12 +18,7 @@ namespace Lab3
         {
             string linkBase = "http://95.217.177.249/casino/";
             //BrekLcg(linkBase);
-            long seed = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            MT merzennyiTwister = new MT(seed);
-            for(int i = 0; i < 10; i++)
-            {
-                Console.WriteLine(merzennyiTwister.TemperMT());
-            }
+            BrekMT(linkBase);
         }
 
         static string SendRequestGetResponse(string request)
@@ -69,7 +64,7 @@ namespace Lab3
             return result;
         }
 
-        static BetResponse CreateBet(string uriBase, string mode, string playerID, int betAmount, int betNumber)
+        static BetResponse CreateBet(string uriBase, string mode, string playerID, int betAmount, long betNumber)
         {
             BetResponse result = null;
             string request = $"{uriBase}play{mode}?id={playerID}&bet={betAmount}&number={betNumber}";
@@ -167,6 +162,61 @@ namespace Lab3
             }
 
             Console.WriteLine($"message: {bet.Message}");
+            return acc;
+        }
+
+        /*MT section*/
+        static void BrekMT(string uriBase)
+        {
+            Account acc = CreateAcc(uriBase);
+            int synchroTime = 5;
+            long seed = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - synchroTime;
+            MT rnd = new MT(seed);
+
+            BetResponse bet = CreateBet(uriBase, "Mt", acc.ID, 5, rnd.TemperMT());
+            acc = bet.Account;
+            bool success = false;
+
+            for (int i = 0; i < synchroTime * 4; i++)
+            {
+                seed++;
+                rnd = new MT(seed);
+                long candidate = rnd.TemperMT();
+                long realNum = bet.RealNumber;
+                if (candidate == realNum)
+                {
+                    int goal = 1000000;
+                    BankruptCasinoMt(goal, acc, rnd, uriBase);
+                    if (acc.Money >= goal)
+                    {
+                        success = true;
+                    }
+                    break;
+                }
+            }
+
+            if (!success)
+            {
+                Console.WriteLine("Failed");
+            }
+            else
+            {
+                Console.WriteLine($"id: {acc.ID}");
+                Console.WriteLine($"money: {acc.Money}");
+                Console.WriteLine($"delTime: {acc.DeletionTime}");
+            }
+        }
+
+        static Account BankruptCasinoMt(long threshold, Account acc, MT gen, string uriBase)
+        {
+            BetResponse bet = null;
+            while (acc.Money < threshold)
+            {
+                bet = CreateBet(uriBase, "Mt", acc.ID, acc.Money / 2, gen.TemperMT());
+                acc = bet.Account;
+            }
+
+            Console.WriteLine(bet.Message);
             return acc;
         }
     }
