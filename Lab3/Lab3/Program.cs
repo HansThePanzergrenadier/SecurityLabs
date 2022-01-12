@@ -18,9 +18,11 @@ namespace Lab3
         {
             string linkBase = "http://95.217.177.249/casino/";
             //BrekLcg(linkBase);
-            for(int i = 0; i < 5; i++)
+            long seed = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            MT merzennyiTwister = new MT(seed);
+            for(int i = 0; i < 10; i++)
             {
-                Console.WriteLine(TemperMT());
+                Console.WriteLine(merzennyiTwister.TemperMT());
             }
         }
 
@@ -167,74 +169,5 @@ namespace Lab3
             Console.WriteLine($"message: {bet.Message}");
             return acc;
         }
-
-        /*MT section*/
-        static int w = 32;
-        static int n = 624;
-        static int f = 1812433253;
-        static int m = 397;
-        static int r = 31;
-        static long a = 0x9908b0df;
-        static long d = 0xffffffff;
-        static long b = 0x9d2c5680;
-        static long c = 0xefc60000;
-        static int u = 11;
-        static int s = 7;
-        static int t = 15;
-        static int l = 18;
-        long lowMask;
-        long upMask;
-        int recurIndex = 0;
-        List<long> X = new List<long>();
-
-
-        long TemperMT()
-        {
-            long result;
-            if (recurIndex == n)
-            {
-                TwistMT();
-            }
-            long y = X[recurIndex];
-            y = y ^ ((y >> u) & d);
-            y = y ^ ((y << s) & b);
-            y = y ^ ((y << t) & c);
-            result = (y ^ (y >> l)) & ((1 << w) - 1);
-            recurIndex++;
-
-            return result;
-        }
-
-        void TwistMT()
-        {
-            for (int i = 0; i < n; i++)
-            {
-                lowMask = (1 << r) - 1;
-                upMask = (~lowMask) & ((1 << w) - 1);
-                long num = (X[i] & upMask) + (X[(i + 1) % n] & lowMask);
-                long numSlided = num >> 1;
-                if (num % 2 == 1)
-                {
-                    numSlided ^= a;
-                }
-                X[i] = X[(i + m) % n] ^ numSlided;
-            }
-
-            recurIndex = 0;
-        }
-
-        void SeedMT(long seed)
-        {
-            X.Clear();
-            X.Add(seed);
-            for (int i = 1; i < n; i++)
-            {
-                long value = (f * (X[i - 1] ^ (X[i - 1] >> (w - 2))) + 1) & ((1 << w) - 1);
-                X.Add(value);
-            }
-            TwistMT();
-        }
-
-
     }
 }
