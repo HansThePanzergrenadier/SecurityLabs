@@ -170,7 +170,7 @@ namespace Lab3
         {
             Account acc = CreateAcc(uriBase);
             int synchroTime = 5;
-            long seed = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - synchroTime;
+            uint seed = (uint)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - synchroTime);
             MT rnd = new MT(seed);
 
             BetResponse bet = CreateBet(uriBase, "Mt", acc.ID, 5, rnd.TemperMT());
@@ -186,7 +186,7 @@ namespace Lab3
                 if (candidate == realNum)
                 {
                     int goal = 1000000;
-                    BankruptCasinoMt(goal, acc, rnd, uriBase);
+                    acc = BankruptCasinoMt(goal, acc, rnd, uriBase);
                     if (acc.Money >= goal)
                     {
                         success = true;
