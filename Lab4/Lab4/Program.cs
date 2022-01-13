@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using Konscious.Security.Cryptography;
 
 namespace PasswordGenerator
 {
@@ -9,12 +10,17 @@ namespace PasswordGenerator
     {
         public static void Main(string[] args)
         {
-            ToFile(GeneratePasswords(1000, 10, 60, 5), outputPath);
+            //ToFile(GeneratePasswords(100000, 10, 60, 5), input100kPass);
+
+            ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
+            //ToFile(HashStrong(FromFile(input100kPass)), outputStrongPath);
         }
 
-        static string outputPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.txt";
+        static string outputStrongPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutStrong.txt";
+        static string outputWeakPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutWeak.txt";
         static string stupid100Path = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass.txt";
         static string stupid100kPath = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass100k.txt";
+        static string input100kPass = "D://Folya//docs//homeworks//7 sem//security//Lab4Pass100k.txt";
         static List<string> StupidPass100 = FromFile(stupid100Path);
         static List<string> StupidPass100k = FromFile(stupid100kPath);
         static List<string> TrulyRandom;
@@ -113,6 +119,32 @@ namespace PasswordGenerator
                     result.Add(Combined[d]);
                     d++;
                 }
+            }
+
+            return result;
+        }
+
+        static List<string> HashStrong(List<string> passwords)
+        {
+            List<string> result = new List<string>();
+
+            //
+            for(int i = 0; i < passwords.Count; i++)
+            {
+                //
+            }
+
+            return result;
+        }
+
+        static List<string> HashWeak(List<string> passwords)
+        {
+            List<string> result = new List<string>();
+
+            //
+            for (int i = 0; i < passwords.Count; i++)
+            {
+                //
             }
 
             return result;
