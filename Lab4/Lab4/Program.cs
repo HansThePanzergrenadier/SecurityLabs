@@ -9,14 +9,16 @@ namespace PasswordGenerator
     {
         public static void Main(string[] args)
         {
-
+            ToFile(GeneratePasswords(1000, 10, 60, 5), outputPath);
         }
 
+        static string outputPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.txt";
         static string stupid100Path = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass.txt";
         static string stupid100kPath = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass100k.txt";
         static List<string> StupidPass100 = FromFile(stupid100Path);
         static List<string> StupidPass100k = FromFile(stupid100kPath);
         static List<string> TrulyRandom;
+        static List<string> Combined;
 
         static List<string> FromFile(string path)
         {
@@ -30,6 +32,18 @@ namespace PasswordGenerator
             }
 
             return result;
+        }
+
+        static void ToFile(List<string> output, string path)
+        {
+            StreamWriter writer = new StreamWriter(path);
+
+            foreach (var el in output)
+            {
+                writer.WriteLine(el);
+            }
+
+            writer.Close();
         }
 
         static List<string> GenTrulyRandom(int count, int length)
@@ -61,6 +75,44 @@ namespace PasswordGenerator
 
                 pass = vocab[index1] + vocab[index2];
                 result.Add(pass);
+            }
+
+            return result;
+        }
+
+
+        static List<string> GeneratePasswords(int count, int ultraStupidPercent, int stupidPercent, int securePercent)
+        {
+            List<string> result = new List<string>();
+            int combinedPercent = 100 - (ultraStupidPercent + stupidPercent + securePercent);
+            TrulyRandom = GenTrulyRandom((int)(count * ((double)securePercent / 100) * 1.5), 8);
+            Combined = GenCombinedStupid(StupidPass100k, (int)(count * ((double)combinedPercent / 100) * 1.5));
+            int c = 0, d = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                int currentSelection = RandomNumberGenerator.GetInt32(100);
+
+                if (currentSelection < ultraStupidPercent)
+                {
+                    int a = RandomNumberGenerator.GetInt32(StupidPass100.Count);
+                    result.Add(StupidPass100[a]);
+                }
+                else if (currentSelection >= ultraStupidPercent && currentSelection < ultraStupidPercent + stupidPercent)
+                {
+                    int a = RandomNumberGenerator.GetInt32(StupidPass100k.Count);
+                    result.Add(StupidPass100k[a]);
+                }
+                else if (currentSelection >= ultraStupidPercent + stupidPercent && currentSelection < ultraStupidPercent + stupidPercent + securePercent)
+                {
+                    result.Add(TrulyRandom[c]);
+                    c++;
+                }
+                else
+                {
+                    result.Add(Combined[d]);
+                    d++;
+                }
             }
 
             return result;
