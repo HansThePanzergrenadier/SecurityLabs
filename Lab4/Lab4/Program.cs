@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,10 +12,10 @@ namespace PasswordGenerator
     {
         public static void Main(string[] args)
         {
-            //ToFile(GeneratePasswords(1000, 10, 60, 5), outputTestPath);
+            ToFile(GeneratePasswords(100000, 10, 60, 5), input100kPass);
 
             //ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
-            ToFile(HashStrong(FromFile(outputTestPath)), outputStrongPath);
+            ToFile(HashStrong(FromFile(input100kPass)), outputStrongPath);
         }
         static string outputTestPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.csv";
         static string outputStrongPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutStrong.csv";
@@ -129,8 +130,10 @@ namespace PasswordGenerator
         {
             List<string> result = new List<string>();
 
-            for(int i = 0; i < passwords.Count; i++)
+            for (int i = 0; i < passwords.Count; i++)
             {
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
                 RNGCryptoServiceProvider rnd = new RNGCryptoServiceProvider();
                 byte[] saltArr = new byte[16];
                 byte[] hashArr;
@@ -145,9 +148,11 @@ namespace PasswordGenerator
 
                 string saltStr = Encoding.UTF8.GetString(saltArr);
                 string hashStr = Encoding.UTF8.GetString(hashArr);
-                string record = $"{hashStr},{hashStr}";
+                string record = $"{hashStr},{saltStr}";
                 result.Add(record);
-                Console.WriteLine($"Completed {i}/{passwords.Count}");
+
+                timer.Stop();
+                Console.WriteLine($"Completed {i}/{passwords.Count}. Elapsed time: {(double)timer.ElapsedMilliseconds / 1000}");
             }
 
             return result;
@@ -163,7 +168,7 @@ namespace PasswordGenerator
                 byte[] hash = hasher.ComputeHash(Encoding.UTF8.GetBytes(passwords[i]));
                 string hashStr = "";
 
-                foreach(var el in hash)
+                foreach (var el in hash)
                 {
                     hashStr += el.ToString("x2");
                 }
