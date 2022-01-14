@@ -12,9 +12,13 @@ namespace PasswordGenerator
     {
         public static void Main(string[] args)
         {
-            ToFile(GeneratePasswords(100000, 10, 60, 5), input100kPass);
+            //ToFile(GeneratePasswords(100000, 10, 60, 5), input100kPass);
 
+            //Stopwatch timer = new Stopwatch();
+            //timer.Start();
             //ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
+            //timer.Stop();
+            //Console.WriteLine($"Time elapsed total: {(double)timer.ElapsedMilliseconds/1000}");
             ToFile(HashStrong(FromFile(input100kPass)), outputStrongPath);
         }
         static string outputTestPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.csv";
@@ -146,9 +150,9 @@ namespace PasswordGenerator
                 hasher.Iterations = 4;
                 hashArr = hasher.GetBytes(16);
 
-                string saltStr = Encoding.UTF8.GetString(saltArr);
-                string hashStr = Encoding.UTF8.GetString(hashArr);
-                string record = $"{hashStr},{saltStr}";
+                string saltStr = Convert.ToBase64String(saltArr);
+                string hashStr = Convert.ToBase64String(hashArr);
+                string record = $"hash: {hashStr} salt: {saltStr}";
                 result.Add(record);
 
                 timer.Stop();
