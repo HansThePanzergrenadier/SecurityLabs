@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 using Konscious.Security.Cryptography;
 
 namespace PasswordGenerator
@@ -10,12 +11,12 @@ namespace PasswordGenerator
     {
         public static void Main(string[] args)
         {
-            //ToFile(GeneratePasswords(100000, 10, 60, 5), input100kPass);
+            //ToFile(GeneratePasswords(1000, 10, 60, 5), outputTestPath);
 
             ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
             //ToFile(HashStrong(FromFile(input100kPass)), outputStrongPath);
         }
-
+        static string outputTestPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.txt";
         static string outputStrongPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutStrong.txt";
         static string outputWeakPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutWeak.txt";
         static string stupid100Path = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass.txt";
@@ -141,10 +142,18 @@ namespace PasswordGenerator
         {
             List<string> result = new List<string>();
 
-            //
             for (int i = 0; i < passwords.Count; i++)
             {
-                //
+                SHA1 hasher = SHA1.Create();
+                byte[] hash = hasher.ComputeHash(Encoding.UTF8.GetBytes(passwords[i]));
+                string hashStr = "";
+
+                foreach(var el in hash)
+                {
+                    hashStr += el.ToString("x2");
+                }
+
+                result.Add(hashStr);
             }
 
             return result;
