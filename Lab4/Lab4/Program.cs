@@ -13,12 +13,12 @@ namespace PasswordGenerator
         {
             //ToFile(GeneratePasswords(1000, 10, 60, 5), outputTestPath);
 
-            ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
-            //ToFile(HashStrong(FromFile(input100kPass)), outputStrongPath);
+            //ToFile(HashWeak(FromFile(input100kPass)), outputWeakPath);
+            ToFile(HashStrong(FromFile(outputTestPath)), outputStrongPath);
         }
-        static string outputTestPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.txt";
-        static string outputStrongPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutStrong.txt";
-        static string outputWeakPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutWeak.txt";
+        static string outputTestPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutTest.csv";
+        static string outputStrongPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutStrong.csv";
+        static string outputWeakPath = "D://Folya//docs//homeworks//7 sem//security//Lab4OutWeak.csv";
         static string stupid100Path = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass.txt";
         static string stupid100kPath = "D://Folya//docs//homeworks//7 sem//security//Lab4StupidPass100k.txt";
         static string input100kPass = "D://Folya//docs//homeworks//7 sem//security//Lab4Pass100k.txt";
@@ -129,10 +129,25 @@ namespace PasswordGenerator
         {
             List<string> result = new List<string>();
 
-            //
             for(int i = 0; i < passwords.Count; i++)
             {
-                //
+                RNGCryptoServiceProvider rnd = new RNGCryptoServiceProvider();
+                byte[] saltArr = new byte[16];
+                byte[] hashArr;
+                rnd.GetNonZeroBytes(saltArr);
+
+                Argon2i hasher = new Argon2i(Encoding.UTF8.GetBytes(passwords[i]));
+                hasher.Salt = saltArr;
+                hasher.DegreeOfParallelism = 4 * 2;
+                hasher.MemorySize = 2000000;
+                hasher.Iterations = 4;
+                hashArr = hasher.GetBytes(16);
+
+                string saltStr = Encoding.UTF8.GetString(saltArr);
+                string hashStr = Encoding.UTF8.GetString(hashArr);
+                string record = $"{hashStr},{hashStr}";
+                result.Add(record);
+                Console.WriteLine($"Completed {i}/{passwords.Count}");
             }
 
             return result;
