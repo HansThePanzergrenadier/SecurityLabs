@@ -162,3 +162,9 @@ D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Razor\
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Razor\Areas\Identity\Pages\Account\_ViewImports.cshtml.g.cs
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Razor\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml.g.cs
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Razor\Areas\Identity\Pages\_ViewImports.cshtml.g.cs
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\Sodium.Core.dll
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\linux-musl-x64\native\libsodium.so
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\linux-x64\native\libsodium.so
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\osx-x64\native\libsodium.dylib
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\win-x64\native\libsodium.dll
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\win-x86\native\libsodium.dll
