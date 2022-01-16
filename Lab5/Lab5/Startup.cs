@@ -36,7 +36,7 @@ namespace Lab5
             //ensure cookie policy
             services.ConfigureApplicationCookie(opts => {
                 opts.Cookie.HttpOnly = true;
-                opts.Cookie.Expiration = TimeSpan.FromHours(1);
+                opts.ExpireTimeSpan = TimeSpan.FromHours(1);
                 opts.SlidingExpiration = false;
             });
 
