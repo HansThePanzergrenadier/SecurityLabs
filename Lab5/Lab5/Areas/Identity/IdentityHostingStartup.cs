@@ -17,6 +17,7 @@ namespace Lab5.Areas.Identity
         {
             builder.ConfigureServices((context, services) => {
                 //services.Configure<UserManager<IdentityUser>>(option => option.PasswordHasher = new Argon2iHasher());
+                
             });
         }
     }

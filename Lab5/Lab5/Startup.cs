@@ -1,6 +1,7 @@
 using Lab5.Data;
 using Lab5.Data.SecurityTools;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Lab5
 {
@@ -30,6 +33,12 @@ namespace Lab5
         {
             //custom hashing
             services.AddTransient<IPasswordHasher<IdentityUser>, Argon2iHasher>();
+            //ensure cookie policy
+            services.ConfigureApplicationCookie(opts => {
+                opts.Cookie.HttpOnly = true;
+                opts.Cookie.Expiration = TimeSpan.FromHours(1);
+                opts.SlidingExpiration = false;
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -54,7 +63,9 @@ namespace Lab5
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
