@@ -21,6 +21,7 @@ namespace Lab5
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseSetting("https_port", "443");
                 });
     }
 }
