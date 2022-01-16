@@ -39,13 +39,22 @@ namespace Lab5
                 opts.ExpireTimeSpan = TimeSpan.FromHours(1);
                 opts.SlidingExpiration = false;
             });
+            //add custom data protection
+            services.AddDataProtection();
+            services.AddTransient<ILookupProtector, LookupProtector>();
+            services.AddTransient<ILookupProtectorKeyRing, KeyRing>();
+            services.AddTransient<IPersonalDataProtector, DefaultPersonalDataProtector>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>(options => 
+            { 
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Stores.ProtectPersonalData = true;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
         }
