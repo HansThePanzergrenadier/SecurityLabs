@@ -69,6 +69,10 @@ namespace Lab5
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.ConfigureHttpsDefaults(options => options.ClientCertificateMode = ClientCertificateMode.RequireCertificate);
+                options.ConfigureHttpsDefaults(co =>
+                {
+                    co.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                });
             });
             //customized hsts
             services.AddHsts(options =>

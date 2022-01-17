@@ -124,6 +124,7 @@ D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtim
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\win-arm64\lib\net5.0\dotnet-aspnet-codegenerator-design.exe
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\bin\Debug\net5.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
+D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Lab5.csproj.AssemblyReference.cache
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Lab5.GeneratedMSBuildEditorConfig.editorconfig
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Lab5.AssemblyInfoInputs.cache
 D:\Folya\docs\homeworks\7 sem\security\secLabs\Lab5\Lab5\obj\Debug\net5.0\Lab5.AssemblyInfo.cs
