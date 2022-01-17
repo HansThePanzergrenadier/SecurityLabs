@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "JVvkymO71nnIZJ9p1G0RK+qm60KcXPwHeo6LYQJOT0IciCBSCC5DBO46GR58gJVlm8EBt2OR4hsJfnOvZHapWw==",
+  "dgSpecHash": "QoZUl3ArDP92klW2a1TOM+L5qsfSzuGg9kci7P6wEpBiTa37LxLfEOaPDXUklonlizKscfRlRqOetxiprkAkeQ==",
   "success": true,
   "projectFilePath": "D:\\Folya\\docs\\homeworks\\7 sem\\security\\secLabs\\Lab5\\Lab5\\Lab5.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dima\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Dima\\.nuget\\packages\\libsodium\\1.0.18\\libsodium.1.0.18.nupkg.sha512",
+    "C:\\Users\\Dima\\.nuget\\packages\\microsoft.aspnetcore.authentication.certificate\\5.0.11\\microsoft.aspnetcore.authentication.certificate.5.0.11.nupkg.sha512",
     "C:\\Users\\Dima\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\5.0.12\\microsoft.aspnetcore.cryptography.internal.5.0.12.nupkg.sha512",
     "C:\\Users\\Dima\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\5.0.12\\microsoft.aspnetcore.cryptography.keyderivation.5.0.12.nupkg.sha512",
     "C:\\Users\\Dima\\.nuget\\packages\\microsoft.aspnetcore.diagnostics.entityframeworkcore\\5.0.13\\microsoft.aspnetcore.diagnostics.entityframeworkcore.5.0.13.nupkg.sha512",

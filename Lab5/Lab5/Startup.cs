@@ -16,6 +16,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 namespace Lab5
 {
@@ -31,7 +34,7 @@ namespace Lab5
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //custom hashing
+            //custom hashing for passwords
             services.AddTransient<IPasswordHasher<IdentityUser>, Argon2iHasher>();
             //ensure cookie policy
             services.ConfigureApplicationCookie(opts => {
@@ -57,6 +60,23 @@ namespace Lab5
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
+            //enabling self-signed certificates
+            services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme).AddCertificate(options => 
+            {
+                options.AllowedCertificateTypes = CertificateTypes.All;
+            });
+            //require certificates from client
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.ConfigureHttpsDefaults(options => options.ClientCertificateMode = ClientCertificateMode.RequireCertificate);
+            });
+            //customized hsts
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(60);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
